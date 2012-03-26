@@ -1,0 +1,19 @@
+from zope.interface import Interface
+
+
+class IBridgeConfig(Interface):
+    """Utility providing bridge configuration infos. Configurable using
+    environment variables:
+
+    ``bridge_url`` -- Full url to the bridge /proxy view.
+    ``bridge_ips`` -- A comma seperated string of allowed bridge IPs.
+    """
+
+    def get_url():
+        """Returns the URL to the proxy view of the bridge, ending with a
+        slash (/).
+        """
+
+    def get_bridge_ips():
+        """Returns a list of allowed IP addresses.
+        """
