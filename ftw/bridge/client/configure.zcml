@@ -1,9 +1,30 @@
 <configure
     xmlns="http://namespaces.zope.org/zope"
+    xmlns:browser="http://namespaces.zope.org/browser"
+    xmlns:pas="http://namespaces.zope.org/pluggableauthservice"
+    xmlns:five="http://namespaces.zope.org/five"
     xmlns:i18n="http://namespaces.zope.org/i18n">
 
     <utility
         factory="ftw.bridge.client.config.BridgeConfig"
+        />
+
+    <five:registerClass
+        class=".plugin.BridgePlugin"
+        meta_type="BridgePASPlugin"
+        permission="zope2.ViewManagementScreens"
+        addview="add-bridge-plugin"
+        />
+
+    <pas:registerMultiPlugin
+        meta_type="BridgePASPlugin"
+        />
+
+    <browser:page
+        name="add-bridge-plugin"
+        for="zope.browser.interfaces.IAdding"
+        class=".plugin.AddBridgePlugin"
+        permission="zope2.ViewManagementScreens"
         />
 
 </configure>

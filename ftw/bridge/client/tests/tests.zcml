@@ -1,0 +1,11 @@
+<configure
+    xmlns="http://namespaces.zope.org/zope">
+
+    <include package="Products.Five" file="meta.zcml" />
+    <include package="Products.PluggableAuthService" file="meta.zcml" />
+
+    <include package="AccessControl" file="permissions.zcml" />
+
+    <include package="ftw.bridge.client" />
+
+</configure>

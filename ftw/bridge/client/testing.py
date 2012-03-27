@@ -8,8 +8,9 @@ class ZCMLLayer(ComponentRegistryLayer):
 
     def setUp(self):
         super(ZCMLLayer, self).setUp()
-        import ftw.bridge.client
-        self.load_zcml_file('configure.zcml', ftw.bridge.client)
+
+        import ftw.bridge.client.tests
+        self.load_zcml_file('tests.zcml', ftw.bridge.client.tests)
 
 
 ZCML_LAYER = ZCMLLayer()
