@@ -1,9 +1,10 @@
 <configure
     xmlns="http://namespaces.zope.org/zope"
     xmlns:browser="http://namespaces.zope.org/browser"
-    xmlns:pas="http://namespaces.zope.org/pluggableauthservice"
     xmlns:five="http://namespaces.zope.org/five"
-    xmlns:i18n="http://namespaces.zope.org/i18n">
+    xmlns:genericsetup="http://namespaces.zope.org/genericsetup"
+    xmlns:i18n="http://namespaces.zope.org/i18n"
+    xmlns:pas="http://namespaces.zope.org/pluggableauthservice">
 
     <utility
         factory="ftw.bridge.client.config.BridgeConfig"
@@ -29,6 +30,14 @@
         for="zope.browser.interfaces.IAdding"
         class=".plugin.AddBridgePlugin"
         permission="zope2.ViewManagementScreens"
+        />
+
+  <genericsetup:registerProfile
+        name="default"
+        title="ftw.bridge.client"
+        description=""
+        directory="profiles/default"
+        provides="Products.GenericSetup.interfaces.EXTENSION"
         />
 
 </configure>
