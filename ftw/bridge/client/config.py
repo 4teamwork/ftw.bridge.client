@@ -19,3 +19,10 @@ class BridgeConfig(object):
             raise BridgeConfigurationError()
 
         return [ip.strip() for ip in ips.strip().split(',')]
+
+    def get_client_id(self):
+        id = os.environ.get('bridge_client_id', None)
+        if id is None:
+            raise BridgeConfigurationError()
+
+        return id.strip()

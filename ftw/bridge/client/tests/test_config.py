@@ -47,3 +47,16 @@ class TestConfig(MockTestCase):
         config = queryUtility(IBridgeConfig)
         with self.assertRaises(BridgeConfigurationError):
             config.get_bridge_ips()
+
+    def test_get_client_id(self):
+        os.environ['bridge_client_id'] = 'client-one'
+        config = getUtility(IBridgeConfig)
+        self.assertEqual(config.get_client_id(), 'client-one')
+
+    def test_get_client_id_without_config(self):
+        if 'bridge_client_id' in os.environ:
+            del os.environ['bridge_client_id']
+
+        config = getUtility(IBridgeConfig)
+        with self.assertRaises(BridgeConfigurationError):
+            config.get_client_id()

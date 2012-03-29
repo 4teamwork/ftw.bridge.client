@@ -7,6 +7,7 @@ class IBridgeConfig(Interface):
 
     ``bridge_url`` -- Full url to the bridge /proxy view.
     ``bridge_ips`` -- A comma seperated string of allowed bridge IPs.
+    ``bridge_client_id`` -- The id (string) of this client.
     """
 
     def get_url():
@@ -16,6 +17,10 @@ class IBridgeConfig(Interface):
 
     def get_bridge_ips():
         """Returns a list of allowed IP addresses.
+        """
+
+    def get_client_id():
+        """Returns the client id of this client.
         """
 
 
