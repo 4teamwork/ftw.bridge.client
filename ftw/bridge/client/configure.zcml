@@ -9,6 +9,10 @@
         factory="ftw.bridge.client.config.BridgeConfig"
         />
 
+    <utility
+        factory="ftw.bridge.client.request.BridgeRequest"
+        />
+
     <five:registerClass
         class=".plugin.BridgePlugin"
         meta_type="BridgePASPlugin"

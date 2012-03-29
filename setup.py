@@ -43,6 +43,7 @@ setup(name='ftw.bridge.client',
       install_requires=[
           'setuptools',
           'Products.PluggableAuthService',
+          'requests',
       ],
       tests_require=tests_require,
       extras_require=extras_require,

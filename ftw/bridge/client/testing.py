@@ -1,4 +1,6 @@
 from ftw.testing.layer import ComponentRegistryLayer
+from plone.testing import Layer
+import os
 
 
 class ZCMLLayer(ComponentRegistryLayer):
@@ -14,3 +16,26 @@ class ZCMLLayer(ComponentRegistryLayer):
 
 
 ZCML_LAYER = ZCMLLayer()
+
+
+class BridgeConfigLayer(Layer):
+
+    defaultBases = (ZCML_LAYER,)
+
+    variables = {
+        'bridge_url': 'http://bridge/proxy',
+        'bridge_ipds': '127.0.0.1, 127.0.0.2',
+        'bridge_client_id': 'current-client',
+        }
+
+    def setUp(self):
+        for key, value in self.variables.items():
+            os.environ[key] = value
+
+    def tearDown(self):
+        for key in self.variables.keys():
+            if key in os.environ:
+                del os.environ[key]
+
+
+BRIDGE_CONFIG_LAYER = BridgeConfigLayer()

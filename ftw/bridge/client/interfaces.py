@@ -28,3 +28,29 @@ class IBridgeRequestLayer(Interface):
     """A request layer interface for marking requests from a bridge (
     authenticated by the bridge PAS plugin).
     """
+
+
+class IBridgeRequest(Interface):
+    """A utility for sending requests to the bridge.
+    """
+
+    def __call__(target, path, method='GET', headers=None, **kwargs):
+        """Make a request to the client ``target`` client through the
+        configured bridge.
+
+        Arguments:
+        ``target`` -- Target client id as configured on the bridge.
+        ``path`` -- Path and view to request, relative to the site root on
+        the remote client.
+        ``method`` -- Request method (defaults to GET).
+        ``headers`` -- Dict of additional request headers (optional).
+        **kwargs -- Additional keyword arguments passed to ``requests``
+        package.
+        """
+
+    def get_json(*args, **kwargs):
+        """Makes a request to a view returning json and converts the
+        json to python.
+
+        The arguments are the same as for the __call__ method.
+        """
