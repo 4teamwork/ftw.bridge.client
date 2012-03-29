@@ -5,7 +5,7 @@ version = '1.0dev'
 maintainer = 'Jonas Baumann'
 
 tests_require = [
-    'plone.testing',
+    'plone.app.testing',
     'ftw.testing',
     ]
 

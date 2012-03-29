@@ -40,4 +40,11 @@
         provides="Products.GenericSetup.interfaces.EXTENSION"
         />
 
+  <genericsetup:importStep
+          name="ftw.bridge.client : install bridge PAS plugin"
+          title="install the PAS plugin for handler request from bridge"
+          description=""
+          handler="ftw.bridge.client.setuphandlers.setup_bridge_pas_plugin"
+          />
+
 </configure>

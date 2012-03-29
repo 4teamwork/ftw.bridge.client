@@ -1,4 +1,6 @@
 from ftw.testing.layer import ComponentRegistryLayer
+from plone.app.testing import PLONE_INTEGRATION_TESTING
+from plone.app.testing import PloneSandboxLayer
 from plone.testing import Layer
 import os
 
@@ -39,3 +41,16 @@ class BridgeConfigLayer(Layer):
 
 
 BRIDGE_CONFIG_LAYER = BridgeConfigLayer()
+
+
+class IntegrationTestingLayer(PloneSandboxLayer):
+
+    defaultBases = (PLONE_INTEGRATION_TESTING,)
+
+    def setUpZope(self, app, configurationContext):
+        # Load ZCML
+        import ftw.bridge.client
+        self.loadZCML(package=ftw.bridge.client)
+
+
+INTEGRATION_TESTING_LAYER = IntegrationTestingLayer()
