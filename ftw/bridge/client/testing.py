@@ -43,7 +43,7 @@ class BridgeConfigLayer(Layer):
 BRIDGE_CONFIG_LAYER = BridgeConfigLayer()
 
 
-class IntegrationTestingLayer(PloneSandboxLayer):
+class PloneTestingLayer(PloneSandboxLayer):
 
     defaultBases = (PLONE_INTEGRATION_TESTING,)
 
@@ -53,4 +53,4 @@ class IntegrationTestingLayer(PloneSandboxLayer):
         self.loadZCML(package=ftw.bridge.client)
 
 
-INTEGRATION_TESTING_LAYER = IntegrationTestingLayer()
+PLONE_TESTING_LAYER = PloneTestingLayer()
