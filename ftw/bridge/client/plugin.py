@@ -4,7 +4,9 @@ from Products.Five.browser.pagetemplatefile import ViewPageTemplateFile
 from Products.PluggableAuthService.interfaces import plugins
 from Products.PluggableAuthService.plugins.BasePlugin import BasePlugin
 from ftw.bridge.client.interfaces import IBridgeConfig
+from ftw.bridge.client.interfaces import IBridgeRequestLayer
 from zope.component import getUtility
+from zope.interface import directlyProvidedBy, directlyProvides
 from zope.interface import implements
 from zope.publisher.browser import BrowserView
 import logging
@@ -92,6 +94,7 @@ class BridgePlugin(BasePlugin, Cacheable):
         login = credentials.get('login')
         logger.debug('authenticateCredentials: authenticating %r',
                      login)
+        self._provide_request_layer()
         return login, login
 
     security.declarePrivate('_get_request_ip')
@@ -107,3 +110,15 @@ class BridgePlugin(BasePlugin, Cacheable):
             return ips
         else:
             return ips.split(',')[0].strip()
+
+    security.declarePrivate('_provide_request_layer')
+    def _provide_request_layer(self):
+        request = self.REQUEST
+        ifaces = [IBridgeRequestLayer] + list(directlyProvidedBy(request))
+
+        # Since we allow multiple markers here, we can't use
+        # zope.publisher.browser.applySkin() since this filters out
+        # IBrowserSkinType interfaces, nor can we use alsoProvides(), since
+        # this appends the interface (in which case we end up *after* the
+        # default Plone/CMF skin)
+        directlyProvides(request, *ifaces)

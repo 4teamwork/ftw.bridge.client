@@ -1,6 +1,7 @@
 from Products.PluggableAuthService.interfaces import plugins
 from copy import copy
 from ftw.bridge.client.interfaces import IBridgeConfig
+from ftw.bridge.client.interfaces import IBridgeRequestLayer
 from ftw.bridge.client.plugin import BridgePlugin
 from ftw.bridge.client.testing import ZCML_LAYER
 from ftw.testing import MockTestCase
@@ -126,14 +127,18 @@ class TestPasPlugin(MockTestCase):
     def test_authenticate_credentials(self):
         self.replay()
         plugin = BridgePlugin('bridge')
+        plugin.REQUEST = self.create_dummy()
 
         self.assertEqual(
             plugin.authenticateCredentials(self.valid_credentials),
             ('john.doe', 'john.doe'))
+        self.assertTrue(IBridgeRequestLayer.providedBy(
+                plugin.REQUEST))
 
     def test_authenticate_credentials_validates_extractor(self):
         self.replay()
         plugin = BridgePlugin('bridge')
+        plugin.REQUEST = self.create_dummy()
 
         creds = copy(self.valid_credentials)
         creds['extractor'] = 'wrong-extractor'
@@ -141,10 +146,13 @@ class TestPasPlugin(MockTestCase):
         self.assertEqual(
             plugin.authenticateCredentials(creds),
             None)
+        self.assertFalse(IBridgeRequestLayer.providedBy(
+                plugin.REQUEST))
 
-    def test_authenticate_credentials_validates_ip(self):
+    def test_authenticate_credentials_from_bad_ip_fails(self):
         self.replay()
         plugin = BridgePlugin('bridge')
+        plugin.REQUEST = self.create_dummy()
 
         creds = copy(self.valid_credentials)
         creds['ip'] = '192.168.1.2'
@@ -152,6 +160,13 @@ class TestPasPlugin(MockTestCase):
         self.assertEqual(
             plugin.authenticateCredentials(creds),
             None)
+        self.assertFalse(IBridgeRequestLayer.providedBy(
+                plugin.REQUEST))
+
+    def test_authenticate_credentials_from_right_ip_succeeds(self):
+        self.replay()
+        plugin = BridgePlugin('bridge')
+        plugin.REQUEST = self.create_dummy()
 
         creds = copy(self.valid_credentials)
         creds['ip'] = '127.0.0.2'
@@ -159,6 +174,8 @@ class TestPasPlugin(MockTestCase):
         self.assertEqual(
             plugin.authenticateCredentials(creds),
             ('john.doe', 'john.doe'))
+        self.assertTrue(IBridgeRequestLayer.providedBy(
+                plugin.REQUEST))
 
     def test_get_request_ip(self):
         self.replay()

@@ -17,3 +17,9 @@ class IBridgeConfig(Interface):
     def get_bridge_ips():
         """Returns a list of allowed IP addresses.
         """
+
+
+class IBridgeRequestLayer(Interface):
+    """A request layer interface for marking requests from a bridge (
+    authenticated by the bridge PAS plugin).
+    """
