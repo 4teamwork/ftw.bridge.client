@@ -1,0 +1,13 @@
+<configure
+    xmlns="http://namespaces.zope.org/zope"
+    xmlns:plone="http://namespaces.plone.org/plone">
+
+     <plone:portlet
+         name="ftw.bridge.client.watcher_portlet"
+         interface="ftw.bridge.client.portlets.watcher.IWatcherPortlet"
+         assignment="ftw.bridge.client.portlets.watcher.Assignment"
+         renderer="ftw.bridge.client.portlets.watcher.Renderer"
+         addview="plone.app.portlets.portlets.base.NullAddForm"
+         />
+
+</configure>

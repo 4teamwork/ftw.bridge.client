@@ -1,0 +1,22 @@
+<html
+    xmlns="http://www.w3.org/1999/xhtml"
+    xmlns:tal="http://xml.zope.org/namespaces/tal"
+    xmlns:i18n="http://xml.zope.org/namespaces/i18n"
+    tal:omit-tag="python: True"
+    i18n:domain="ftw.bridge.client">
+
+    <dl class="portlet portletWatcher">
+
+        <dt class="portletHeader clearfix">
+            <span class="portletTopLeft"></span>
+            <span tal:content="view/title">Recently modified</span>
+            <span class="portletTopRight"></span>
+        </dt>
+
+        <dd class="portletItem odd">
+            <div i18n:translate="msg_loading"
+                 class="portlet-data-loading">Loading ...</div>
+        </dd>
+    </dl>
+
+</html>
