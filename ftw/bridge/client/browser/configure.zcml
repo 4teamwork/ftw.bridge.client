@@ -10,4 +10,12 @@
            permission="zope2.View"
            />
 
+     <browser:page
+           name="watcher-feed"
+           for="*"
+           layer="ftw.bridge.client.interfaces.IBridgeRequestLayer"
+           class=".watcher.WatcherFeed"
+           permission="zope2.View"
+           />
+
 </configure>

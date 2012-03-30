@@ -2,7 +2,9 @@ from ftw.testing.layer import ComponentRegistryLayer
 from plone.app.testing import IntegrationTesting
 from plone.app.testing import PLONE_INTEGRATION_TESTING
 from plone.app.testing import PloneSandboxLayer
+from plone.app.testing import TEST_USER_ID
 from plone.app.testing import applyProfile
+from plone.app.testing import setRoles
 from plone.testing import Layer
 import os
 
@@ -74,3 +76,18 @@ class IntegrationTestingLayer(PloneTestingLayer):
 INTEGRATION_FIXTURE = IntegrationTestingLayer()
 INTEGRATION_TESTING = IntegrationTesting(
     bases=(INTEGRATION_FIXTURE,), name='ftw.bridge.client:Integration')
+
+
+class ExampleContentLayer(PloneSandboxLayer):
+
+    defaultBases = (INTEGRATION_TESTING,)
+
+    def setUpPloneSite(self, portal):
+        setRoles(portal, TEST_USER_ID, ['Manager'])
+        self['folder'] = folder = portal.get(portal.invokeFactory(
+                'Folder', 'feed-folder', title='Feed folder'))
+        folder.invokeFactory('Document', 'page', title='The page')
+        setRoles(portal, TEST_USER_ID, ['Member'])
+
+
+EXAMPLE_CONTENT_LAYER = ExampleContentLayer()
