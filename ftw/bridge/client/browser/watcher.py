@@ -6,7 +6,6 @@ from ftw.bridge.client import _
 from ftw.bridge.client.exceptions import MaintenanceError
 from ftw.bridge.client.interfaces import IBridgeRequest
 from ftw.bridge.client.portlets.watcher import Assignment
-from persistent.dict import PersistentDict
 from plone.portlets.constants import USER_CATEGORY
 from plone.portlets.interfaces import IPortletManager
 from plone.portlets.utils import unhashPortletInfo
@@ -82,8 +81,7 @@ class  AddWatcherPortlet(BrowserView):
         users_category = column_manager.get(USER_CATEGORY)
         column = users_category.get(userid, None)
         if not column:
-            column = PersistentDict()
-            users_category[userid] = column
+            users_category[userid] = column = {}
 
         portlet_id = self._generate_portlet_id(column)
 
