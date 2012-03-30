@@ -3,6 +3,13 @@
     xmlns:browser="http://namespaces.zope.org/browser">
 
     <browser:page
+        name="watch-action"
+        for="*"
+        class=".watcher.WatchAction"
+        permission="zope2.View"
+        />
+
+    <browser:page
         name="add-watcher-portlet"
         for="*"
         layer="ftw.bridge.client.interfaces.IBridgeRequestLayer"

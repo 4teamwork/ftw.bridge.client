@@ -1,12 +1,16 @@
 from Products.CMFCore.utils import getToolByName
 from Products.Five import BrowserView
+from Products.statusmessages.interfaces import IStatusMessage
 from datetime import datetime
+from ftw.bridge.client import _
+from ftw.bridge.client.exceptions import MaintenanceError
 from ftw.bridge.client.interfaces import IBridgeRequest
 from ftw.bridge.client.portlets.watcher import Assignment
 from persistent.dict import PersistentDict
 from plone.portlets.constants import USER_CATEGORY
 from plone.portlets.interfaces import IPortletManager
 from plone.portlets.utils import unhashPortletInfo
+from plone.uuid.interfaces import IUUID
 from zope.component import getUtility
 import time
 
@@ -18,6 +22,46 @@ except ImportError:
 
 WATCHER_PORTLET_LIMIT = 5
 DATETIME_FORMAT = '%Y-%m-%dT%H:%M:%S'
+
+
+class WatchAction(BrowserView):
+    """Creates a "watcher" portlet on the client with the ID (or alias)
+    "dashboard" through the bridge.
+    """
+
+    def __call__(self):
+        uid = IUUID(self.context)
+        feed_path = '@@watcher-feed?uid=%s' % uid
+
+        requester = getUtility(IBridgeRequest)
+        try:
+            response = requester('dashboard', '@@add-watcher-portlet',
+                                 params={'path': feed_path})
+
+        except MaintenanceError:
+            IStatusMessage(self.request).addStatusMessage(
+                _(u'error_msg_maintenance',
+                  default=u'The target service is currently in ' + \
+                      u'maintenace. Try again later.'),
+                type='error')
+        else:
+            if response.status_code == 200:
+                IStatusMessage(self.request).addStatusMessage(
+                    _(u'info_msg_portlet_created',
+                      default=u'A dashboard portlet was created.'),
+                    type='info')
+
+            else:
+                IStatusMessage(self.request).addStatusMessage(
+                    _(u'info_error_portlet_creation_failed',
+                      default=u'The dashboard portlet could not be created.'),
+                    type='error')
+
+        referer = self.request.environ.get('HTTP_REFERER')
+        if referer:
+            self.request.RESPONSE.redirect(referer)
+        else:
+            self.request.RESPONSE.redirect(self.context.absolute_url())
 
 
 class  AddWatcherPortlet(BrowserView):
