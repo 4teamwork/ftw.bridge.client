@@ -18,4 +18,11 @@
            permission="zope2.View"
            />
 
+     <browser:page
+           name="watcher-load-data"
+           for="*"
+           class=".watcher.AjaxLoadPortletData"
+           permission="zope2.View"
+           />
+
 </configure>

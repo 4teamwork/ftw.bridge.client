@@ -1,10 +1,14 @@
 from Products.CMFCore.utils import getToolByName
 from Products.Five import BrowserView
+from datetime import datetime
+from ftw.bridge.client.interfaces import IBridgeRequest
 from ftw.bridge.client.portlets.watcher import Assignment
 from persistent.dict import PersistentDict
 from plone.portlets.constants import USER_CATEGORY
 from plone.portlets.interfaces import IPortletManager
+from plone.portlets.utils import unhashPortletInfo
 from zope.component import getUtility
+import time
 
 try:
     import json
@@ -40,6 +44,7 @@ class  AddWatcherPortlet(BrowserView):
         portlet_id = self._generate_portlet_id(column)
 
         column[portlet_id] = Assignment(client_id=origin, path=path)
+        column[portlet_id].__name__ = portlet_id
 
         return 'OK'
 
@@ -84,3 +89,41 @@ class WatcherFeed(BrowserView):
                    'portal_type': brain.portal_type,
                    'cssclass': u'',
                    }
+
+
+class AjaxLoadPortletData(BrowserView):
+
+    def __call__(self):
+        portlet = self._get_portlet()
+        data = self._get_data(portlet)
+        data = self._localize_dates(data)
+        return json.dumps(data)
+
+    def _get_portlet(self):
+        portlet_hash = self.request.get('hash')
+
+        info = unhashPortletInfo(portlet_hash)
+
+        column_manager = getUtility(IPortletManager,
+                                    name=info['manager'])
+
+        mtool = getToolByName(self.context, 'portal_membership')
+        userid = mtool.getAuthenticatedMember().getId()
+        column = column_manager.get(USER_CATEGORY, {}).get(userid, {})
+
+        return column.get(info['name'])
+
+    def _get_data(self, portlet):
+        requester = getUtility(IBridgeRequest)
+        return requester.get_json(portlet.client_id, portlet.path)
+
+    def _localize_dates(self, data):
+        translation = getToolByName(self.context, 'translation_service')
+        localize_time = translation.ulocalized_time
+
+        for item in data.get('items'):
+            date = datetime(*(time.strptime(
+                        item['modified'], DATETIME_FORMAT)[0:6]))
+            item['modified'] = localize_time(date, long_format=False)
+
+        return data
