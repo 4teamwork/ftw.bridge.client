@@ -9,6 +9,24 @@ from plone.testing import Layer
 import os
 
 
+CONFIG_VARIABLES = {
+        'bridge_url': 'http://bridge/proxy',
+        'bridge_ipds': '127.0.0.1, 127.0.0.2',
+        'bridge_client_id': 'current-client',
+        }
+
+
+def setup_config():
+    for key, value in CONFIG_VARIABLES.items():
+        os.environ[key] = value
+
+
+def teardown_config():
+    for key in CONFIG_VARIABLES.keys():
+        if key in os.environ:
+            del os.environ[key]
+
+
 class ZCMLLayer(ComponentRegistryLayer):
     """A layer which only sets up the zcml, but does not start a zope
     instance.
@@ -28,20 +46,11 @@ class BridgeConfigLayer(Layer):
 
     defaultBases = (ZCML_LAYER,)
 
-    variables = {
-        'bridge_url': 'http://bridge/proxy',
-        'bridge_ipds': '127.0.0.1, 127.0.0.2',
-        'bridge_client_id': 'current-client',
-        }
-
     def setUp(self):
-        for key, value in self.variables.items():
-            os.environ[key] = value
+        setup_config()
 
     def tearDown(self):
-        for key in self.variables.keys():
-            if key in os.environ:
-                del os.environ[key]
+        teardown_config()
 
 
 BRIDGE_CONFIG_LAYER = BridgeConfigLayer()
@@ -83,11 +92,16 @@ class ExampleContentLayer(PloneSandboxLayer):
     defaultBases = (INTEGRATION_TESTING,)
 
     def setUpPloneSite(self, portal):
+        setup_config()
+
         setRoles(portal, TEST_USER_ID, ['Manager'])
         self['folder'] = folder = portal.get(portal.invokeFactory(
                 'Folder', 'feed-folder', title='Feed folder'))
         folder.invokeFactory('Document', 'page', title='The page')
         setRoles(portal, TEST_USER_ID, ['Member'])
+
+    def tearDownPloneSite(self, portal):
+        teardown_config()
 
 
 EXAMPLE_CONTENT_LAYER = ExampleContentLayer()
