@@ -2,27 +2,27 @@
     xmlns="http://namespaces.zope.org/zope"
     xmlns:browser="http://namespaces.zope.org/browser">
 
-     <browser:page
-           name="add-watcher-portlet"
-           for="*"
-           layer="ftw.bridge.client.interfaces.IBridgeRequestLayer"
-           class=".watcher.AddWatcherPortlet"
-           permission="zope2.View"
-           />
+    <browser:page
+        name="add-watcher-portlet"
+        for="*"
+        layer="ftw.bridge.client.interfaces.IBridgeRequestLayer"
+        class=".watcher.AddWatcherPortlet"
+        permission="zope2.View"
+        />
 
-     <browser:page
-           name="watcher-feed"
-           for="*"
-           layer="ftw.bridge.client.interfaces.IBridgeRequestLayer"
-           class=".watcher.WatcherFeed"
-           permission="zope2.View"
-           />
+    <browser:page
+        name="watcher-feed"
+        for="*"
+        layer="ftw.bridge.client.interfaces.IBridgeRequestLayer"
+        class=".watcher.WatcherFeed"
+        permission="zope2.View"
+        />
 
-     <browser:page
-           name="watcher-load-data"
-           for="*"
-           class=".watcher.AjaxLoadPortletData"
-           permission="zope2.View"
-           />
+    <browser:page
+        name="watcher-load-data"
+        for="*"
+        class=".watcher.AjaxLoadPortletData"
+        permission="zope2.View"
+        />
 
 </configure>
