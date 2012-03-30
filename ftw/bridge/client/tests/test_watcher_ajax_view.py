@@ -1,7 +1,6 @@
 from Products.CMFCore.utils import getToolByName
 from StringIO import StringIO
 from ftw.bridge.client.browser import watcher
-from ftw.bridge.client.interfaces import IBridgeRequestLayer
 from ftw.bridge.client.portlets.watcher import IWatcherPortlet
 from ftw.bridge.client.testing import EXAMPLE_CONTENT_LAYER
 from ftw.testing import MockTestCase
@@ -14,7 +13,6 @@ from requests.models import Response
 from zope.component import getMultiAdapter
 from zope.component import getUtility
 from zope.component import queryMultiAdapter
-from zope.interface import alsoProvides
 
 try:
     import json
@@ -52,7 +50,6 @@ class TestAjaxLoadPortletDataView(MockTestCase):
 
         portal = self.layer['portal']
         request = self.layer['request']
-        alsoProvides(request, IBridgeRequestLayer)
 
         request.environ['HTTP_X_BRIDGE_ORIGIN'] = 'client-one'
         request.form['path'] = '@@watcher-feed?uid=567891234'

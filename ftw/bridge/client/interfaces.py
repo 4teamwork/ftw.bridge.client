@@ -24,12 +24,6 @@ class IBridgeConfig(Interface):
         """
 
 
-class IBridgeRequestLayer(Interface):
-    """A request layer interface for marking requests from a bridge (
-    authenticated by the bridge PAS plugin).
-    """
-
-
 class IBridgeRequest(Interface):
     """A utility for sending requests to the bridge.
     """

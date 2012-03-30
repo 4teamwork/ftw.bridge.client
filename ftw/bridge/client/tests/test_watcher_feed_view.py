@@ -1,9 +1,7 @@
-from ftw.bridge.client.interfaces import IBridgeRequestLayer
 from ftw.bridge.client.testing import EXAMPLE_CONTENT_LAYER
 from plone.uuid.interfaces import IUUID
 from unittest2 import TestCase
 from zope.component import queryMultiAdapter
-from zope.interface import alsoProvides
 
 try:
     import json
@@ -18,15 +16,10 @@ class TestWatcherFeedView(TestCase):
 
     layer = EXAMPLE_CONTENT_LAYER
 
-    def test_bridge_request_layer_required(self):
+    def test_component_is_registered(self):
         portal = self.layer['portal']
         request = self.layer['request']
 
-        self.assertEquals(
-            queryMultiAdapter((portal, request), name='watcher-feed'),
-            None)
-
-        alsoProvides(request, IBridgeRequestLayer)
         self.assertNotEquals(
             queryMultiAdapter((portal, request), name='watcher-feed'),
             None)
@@ -38,7 +31,6 @@ class TestWatcherFeedView(TestCase):
         uid = IUUID(folder)
 
         request = self.layer['request']
-        alsoProvides(request, IBridgeRequestLayer)
         request.form['uid'] = uid
 
         view = queryMultiAdapter((portal, request), name='watcher-feed')

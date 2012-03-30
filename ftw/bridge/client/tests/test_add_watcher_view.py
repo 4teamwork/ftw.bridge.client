@@ -1,5 +1,4 @@
 from Products.CMFCore.utils import getToolByName
-from ftw.bridge.client.interfaces import IBridgeRequestLayer
 from ftw.bridge.client.portlets import watcher
 from ftw.bridge.client.testing import INTEGRATION_TESTING
 from plone.portlets.constants import USER_CATEGORY
@@ -7,7 +6,6 @@ from plone.portlets.interfaces import IPortletManager
 from unittest2 import TestCase
 from zope.component import getUtility
 from zope.component import queryMultiAdapter
-from zope.interface import alsoProvides
 
 
 class TestAddWatcherPortletView(TestCase):
@@ -34,15 +32,9 @@ class TestAddWatcherPortletView(TestCase):
 
         return portlets
 
-    def test_bridge_request_layer_required(self):
+    def test_component_is_registered(self):
         portal = self.layer['portal']
         request = self.layer['request']
-
-        self.assertEquals(
-            queryMultiAdapter((portal, request), name='add-watcher-portlet'),
-            None)
-
-        alsoProvides(request, IBridgeRequestLayer)
         self.assertNotEquals(
             queryMultiAdapter((portal, request), name='add-watcher-portlet'),
             None)
@@ -50,7 +42,6 @@ class TestAddWatcherPortletView(TestCase):
     def test_add_portlet(self):
         portal = self.layer['portal']
         request = self.layer['request']
-        alsoProvides(request, IBridgeRequestLayer)
 
         request.environ['HTTP_X_BRIDGE_ORIGIN'] = 'client-one'
         request.form['path'] = '@@watcher-feed?uid=567891234'

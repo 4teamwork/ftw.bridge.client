@@ -12,7 +12,6 @@
     <browser:page
         name="add-watcher-portlet"
         for="*"
-        layer="ftw.bridge.client.interfaces.IBridgeRequestLayer"
         class=".watcher.AddWatcherPortlet"
         permission="zope2.View"
         />
@@ -20,7 +19,6 @@
     <browser:page
         name="watcher-feed"
         for="*"
-        layer="ftw.bridge.client.interfaces.IBridgeRequestLayer"
         class=".watcher.WatcherFeed"
         permission="zope2.View"
         />
