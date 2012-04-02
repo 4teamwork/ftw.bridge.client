@@ -9,7 +9,8 @@
 
         <dt class="portletHeader clearfix">
             <span class="portletTopLeft"></span>
-            <span tal:content="view/title">Recently modified</span>
+            <span class="portlet-title"
+                  tal:content="view/title">Recently modified</span>
             <span class="portletTopRight"></span>
         </dt>
 

@@ -2,6 +2,10 @@
     xmlns="http://namespaces.zope.org/zope"
     xmlns:browser="http://namespaces.zope.org/browser">
 
+    <browser:resourceDirectory
+        name="ftw.bridge.client-resources"
+        directory="resources" />
+
     <browser:page
         name="watch-action"
         for="*"
