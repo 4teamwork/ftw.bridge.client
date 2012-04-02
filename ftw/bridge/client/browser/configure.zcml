@@ -7,7 +7,7 @@
         directory="resources" />
 
     <browser:page
-        name="watch-action"
+        name="watch"
         for="*"
         class=".watcher.WatchAction"
         permission="zope2.View"

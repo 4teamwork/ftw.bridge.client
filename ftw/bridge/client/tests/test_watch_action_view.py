@@ -38,7 +38,7 @@ class TestWatchActionView(MockTestCase):
 
         self.replay()
 
-        view = queryMultiAdapter((context, request), name='watch-action')
+        view = queryMultiAdapter((context, request), name='watch')
         self.assertNotEqual(view, None)
 
     def test_view_requests_bridge(self):
@@ -57,7 +57,7 @@ class TestWatchActionView(MockTestCase):
 
         self.replay()
 
-        view = getMultiAdapter((context, request), name='watch-action')
+        view = getMultiAdapter((context, request), name='watch')
         view()
         self.assertEqual(request.response.headers.get('location'),
                          referer_url)
@@ -83,7 +83,7 @@ class TestWatchActionView(MockTestCase):
 
         self.replay()
 
-        view = getMultiAdapter((context, request), name='watch-action')
+        view = getMultiAdapter((context, request), name='watch')
         view()
         self.assertEqual(request.response.headers.get('location'),
                          referer_url)
@@ -108,7 +108,7 @@ class TestWatchActionView(MockTestCase):
 
         self.replay()
 
-        view = getMultiAdapter((context, request), name='watch-action')
+        view = getMultiAdapter((context, request), name='watch')
         view()
         self.assertEqual(request.response.headers.get('location'),
                          context.absolute_url())
