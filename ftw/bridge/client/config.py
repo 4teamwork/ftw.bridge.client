@@ -21,8 +21,8 @@ class BridgeConfig(object):
         return [ip.strip() for ip in ips.strip().split(',')]
 
     def get_client_id(self):
-        id = os.environ.get('bridge_client_id', None)
-        if id is None:
+        id_ = os.environ.get('bridge_client_id', None)
+        if id_ is None:
             raise BridgeConfigurationError()
 
-        return id.strip()
+        return id_.strip()

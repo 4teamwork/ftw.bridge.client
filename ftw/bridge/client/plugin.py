@@ -43,11 +43,12 @@ class BridgePlugin(BasePlugin, Cacheable):
     meta_type = 'Bridge Authentication Plugin'
     security = ClassSecurityInfo()
 
-    def __init__(self, id, title=None):
-        self._setId(id)
+    def __init__(self, plugin_id, title=None):
+        self._setId(plugin_id)
         self.title = title
 
     security.declarePrivate('extractCredentials')
+
     def extractCredentials(self, request):
         """Extract Credentials of bridge requests.
         """
@@ -70,6 +71,7 @@ class BridgePlugin(BasePlugin, Cacheable):
         return creds
 
     security.declarePrivate('authenticateCredentials')
+
     def authenticateCredentials(self, credentials):
         """Authenticate Credentials for bridge
         """
@@ -95,6 +97,7 @@ class BridgePlugin(BasePlugin, Cacheable):
         return login, login
 
     security.declarePrivate('_get_request_ip')
+
     def _get_request_ip(self, request):
         """Returns the IP address of the host which sent the
         request initally.

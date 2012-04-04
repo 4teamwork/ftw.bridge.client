@@ -97,10 +97,10 @@ class  AddWatcherPortlet(BrowserView):
         counter = 0
         while True:
             counter += 1
-            id = base + str(counter)
+            id_ = base + str(counter)
 
-            if id not in column:
-                return id
+            if id_ not in column:
+                return id_
 
 
 class WatcherFeed(BrowserView):
