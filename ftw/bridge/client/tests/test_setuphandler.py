@@ -26,3 +26,15 @@ class TestPASPluginSetupHandler(MockTestCase):
             setuphandlers.setup_bridge_pas_plugin(setup)
 
             self.assertTrue(setuphandlers.PLUGIN_ID in acl_users.objectIds())
+
+            # Does not fail on another call
+            setuphandlers.setup_bridge_pas_plugin(setup)
+
+    def test_setuphandler_respects_marker_File(self):
+        setup = self.mocker.mock()
+        filename = 'ftw.bridge.client-setup-bridge-pas-plugin.txt'
+        self.expect(setup.readDataFile(filename)).result(None)
+
+        self.replay()
+
+        setuphandlers.setup_bridge_pas_plugin(setup)
