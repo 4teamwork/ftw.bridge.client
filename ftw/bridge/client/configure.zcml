@@ -5,7 +5,7 @@
     xmlns:genericsetup="http://namespaces.zope.org/genericsetup"
     xmlns:i18n="http://namespaces.zope.org/i18n"
     xmlns:pas="http://namespaces.zope.org/pluggableauthservice"
-    i18n:domain="ftw.bridge.client">
+    i18n_domain="ftw.bridge.client">
 
     <include package=".browser" />
     <include package=".portlets" />
