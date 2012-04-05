@@ -1,3 +1,4 @@
+from ftw.bridge.client.interfaces import PORTAL_URL_PLACEHOLDER
 from ftw.bridge.client.testing import EXAMPLE_CONTENT_LAYER
 from plone.uuid.interfaces import IUUID
 from unittest2 import TestCase
@@ -40,15 +41,17 @@ class TestWatcherFeedView(TestCase):
         data = json.loads(result)
         self.assertEqual(data, dict(
                 title=u'Feed folder',
+                details_url=u'%sfeed-folder/recently_modified_view' % (
+                    PORTAL_URL_PLACEHOLDER),
                 items=[
                     dict(title=u'The page',
-                         url=u'http://nohost/plone/feed-folder/page',
+                         url=u'%sfeed-folder/page' % PORTAL_URL_PLACEHOLDER,
                          modified=page.modified().strftime(DATETIME_FORMAT),
                          portal_type=u'Document',
                          cssclass=u''),
 
                     dict(title=u'Feed folder',
-                         url=u'http://nohost/plone/feed-folder',
+                         url=u'%sfeed-folder' % PORTAL_URL_PLACEHOLDER,
                          modified=folder.modified().strftime(
                             DATETIME_FORMAT),
                          portal_type=u'Folder',

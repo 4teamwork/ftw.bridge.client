@@ -1,6 +1,7 @@
 from Products.CMFCore.utils import getToolByName
 from StringIO import StringIO
 from ftw.bridge.client.browser import watcher
+from ftw.bridge.client.interfaces import PORTAL_URL_PLACEHOLDER
 from ftw.bridge.client.portlets.watcher import IWatcherPortlet
 from ftw.bridge.client.testing import EXAMPLE_CONTENT_LAYER
 from ftw.testing import MockTestCase
@@ -92,15 +93,17 @@ class TestAjaxLoadPortletDataView(MockTestCase):
 
         expected_feed_data = dict(
             title=u'Feed folder',
+            details_url=u'%sfeed-folder/recently_modified_view' % (
+                PORTAL_URL_PLACEHOLDER),
             items=[
                 dict(title=u'The page',
-                     url=u'http://nohost/plone/feed-folder/page',
+                     url=u'%sfeed-folder/page' % PORTAL_URL_PLACEHOLDER,
                      modified=page.modified().strftime(dt_format),
                      portal_type=u'Document',
                      cssclass=u''),
 
                 dict(title=u'Feed folder',
-                     url=u'http://nohost/plone/feed-folder',
+                     url=u'%sfeed-folder' % PORTAL_URL_PLACEHOLDER,
                      modified=folder.modified().strftime(dt_format),
                      portal_type=u'Folder',
                      cssclass=u''),

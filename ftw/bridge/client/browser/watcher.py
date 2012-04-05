@@ -6,6 +6,8 @@ from ftw.bridge.client import _
 from ftw.bridge.client.exceptions import MaintenanceError
 from ftw.bridge.client.interfaces import IBridgeRequest
 from ftw.bridge.client.portlets.watcher import Assignment
+from ftw.bridge.client.utils import get_brain_url
+from ftw.bridge.client.utils import get_object_url
 from plone.portlets.constants import USER_CATEGORY
 from plone.portlets.interfaces import IPortletManager
 from plone.portlets.utils import unhashPortletInfo
@@ -110,8 +112,11 @@ class WatcherFeed(BrowserView):
         reference_catalog = getToolByName(self.context, 'reference_catalog')
         obj = reference_catalog.lookupObject(uid)
 
-        data = {'title': obj.Title().decode('utf-8'),
-                'items': list(self.get_item_data(obj))}
+        data = {
+            'title': obj.Title().decode('utf-8'),
+            'items': list(self.get_item_data(obj)),
+            'details_url': '%s/recently_modified_view' % (
+                get_object_url(obj))}
 
         return json.dumps(data)
 
@@ -124,13 +129,13 @@ class WatcherFeed(BrowserView):
                          sort_limit=WATCHER_PORTLET_LIMIT)
 
         for brain in brains:
-
-            yield {'title': brain.Title.decode('utf-8'),
-                   'url': brain.getURL(),
-                   'modified': brain.modified.strftime(DATETIME_FORMAT),
-                   'portal_type': brain.portal_type,
-                   'cssclass': u'',
-                   }
+            yield {
+                'title': brain.Title.decode('utf-8'),
+                'url': get_brain_url(brain),
+                'modified': brain.modified.strftime(DATETIME_FORMAT),
+                'portal_type': brain.portal_type,
+                'cssclass': u'',
+                }
 
 
 class AjaxLoadPortletData(BrowserView):

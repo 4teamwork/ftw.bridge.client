@@ -1,9 +1,11 @@
 jq(function($) {
 
     var COMMUNICATION_ERROR = 'An error occured.';
+    var MORE_TEXT = 'More...';
 
     if (document.all[0].lang == 'de') {
         COMMUNICATION_ERROR = 'Ein unbekannter Fehler ist aufgetreten.';
+        MORE_TEXT = 'Mehr...';
     }
 
     $('.portletWatcher.portlet').each(function() {
@@ -31,7 +33,6 @@ jq(function($) {
 
                     $portlet.find('.portletHeader .portlet-title').text(
                         data.title);
-                    console.log
 
                     var odd = true;
                     $(data.items).each(function() {
@@ -40,14 +41,24 @@ jq(function($) {
                         odd = !odd;
 
                         var item = $('<span class="title">').appendTo(
-                            $('<dd class="' + cssclass + '" />').appendTo($portlet));
+                            $('<dd class="' + cssclass + '" />').appendTo(
+                                $portlet));
 
-                        $('<a class="' + this.cssclass + '" href="' + this.url +
-                          '" target="_blank">' + this.title + '</a>').appendTo(item);
+                        $('<a class="' + this.cssclass + '" ' +
+                          'href="' + this.url +
+                          '">' + this.title + '</a>'
+                         ).appendTo(item);
 
                         $('<span class="portletItemDetails" />').text(
                             ' ' + this.modified).appendTo(item);
                     });
+
+                    if(typeof(data.details_url) != 'undefined') {
+                        $('<dd class="portletFooter" />')
+                          .appendTo($portlet)
+                          .append($('<a href="' + data.details_url + '">' +
+                                    MORE_TEXT + '</a>'));
+                    }
                 }
             },
 
