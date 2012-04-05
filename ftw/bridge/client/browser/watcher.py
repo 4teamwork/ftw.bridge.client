@@ -80,7 +80,7 @@ class  AddWatcherPortlet(BrowserView):
         userid = member.getId()
         users_category = column_manager.get(USER_CATEGORY)
         column = users_category.get(userid, None)
-        if not column:
+        if column is None:
             users_category[userid] = column = {}
 
         portlet_id = self._generate_portlet_id(column)
