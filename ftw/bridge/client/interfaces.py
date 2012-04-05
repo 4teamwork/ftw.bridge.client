@@ -5,6 +5,9 @@
 from zope.interface import Interface
 
 
+PORTAL_URL_PLACEHOLDER = '***portal_url***'
+
+
 class IBridgeConfig(Interface):
     """Utility providing bridge configuration infos. Configurable using
     environment variables:
