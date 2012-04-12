@@ -8,6 +8,7 @@ from ftw.bridge.client.interfaces import IBridgeRequest
 from ftw.bridge.client.portlets.watcher import Assignment
 from ftw.bridge.client.utils import get_brain_url
 from ftw.bridge.client.utils import get_object_url
+from plone.app.portlets.storage import UserPortletAssignmentMapping
 from plone.portlets.constants import USER_CATEGORY
 from plone.portlets.interfaces import IPortletManager
 from plone.portlets.utils import unhashPortletInfo
@@ -71,7 +72,8 @@ class  AddWatcherPortlet(BrowserView):
         origin = self.request.get_header('X-BRIDGE-ORIGIN')
         path = self.request.get('path')
 
-        column_manager = getUtility(IPortletManager, name='plone.dashboard1')
+        column_manager_name = 'plone.dashboard1'
+        column_manager = getUtility(IPortletManager, name=column_manager_name)
         membership_tool = getToolByName(self.context, 'portal_membership')
         member = membership_tool.getAuthenticatedMember()
 
@@ -83,7 +85,10 @@ class  AddWatcherPortlet(BrowserView):
         users_category = column_manager.get(USER_CATEGORY)
         column = users_category.get(userid, None)
         if column is None:
-            users_category[userid] = column = {}
+            users_category[userid] = column = UserPortletAssignmentMapping(
+                manager=column_manager_name,
+                category=USER_CATEGORY,
+                name=userid)
 
         portlet_id = self._generate_portlet_id(column)
 
