@@ -20,11 +20,11 @@ class BridgeRequest(object):
         """
         config = getUtility(IBridgeConfig)
 
-        response = requests.request(
-            method.lower(),
-            self._get_url(config, target, path),
-            headers=self._get_headers(config, headers),
-            **kwargs)
+        url = self._get_url(config, target, path)
+        request_args = kwargs.copy()
+        request_args['headers'] = self._get_headers(config, headers)
+
+        response = self._do_request(method, url, **request_args)
 
         if int(response.status_code) == 503:
             raise MaintenanceError()
@@ -54,3 +54,6 @@ class BridgeRequest(object):
 
     def _get_current_userid(self):
         return getSecurityManager().getUser().getId()
+
+    def _do_request(self, method, url, **kwargs):
+        return requests.request(method.lower(), url, **kwargs)
