@@ -1,35 +1,37 @@
 <html xmlns="http://www.w3.org/1999/xhtml"
-      xmlns:tal="http://xml.zope.org/namespaces/tal">
+      xmlns:tal="http://xml.zope.org/namespaces/tal"
+      xmlns:i18n="http://xml.zope.org/namespaces/i18n"
+      i18n:domain="ftw.bridge.client">
 
     <body>
-        <h1 tal:replace="structure context/aq_parent/manage_page_header">
-            Header
-        </h1>
+        <h1 tal:replace="structure context/aq_parent/manage_page_header" />
 
         <h2 tal:define="form_title string:Bridge Plugin"
-            tal:replace="structure context/aq_parent/manage_form_title">
-            Form Title
-        </h2>
+            tal:replace="structure context/aq_parent/manage_form_title" />
 
-        <p class="form-help">
+        <p class="form-help"
+           i18n:translate="pas_addplugin_help">
             Authenticates bridge requests.
         </p>
 
         <form tal:attributes="action request/getURL" method="POST">
             <table>
                 <tr>
-                    <td class="form-label">Id</td>
+                    <td class="form-label"
+                        i18n:translate="pas_addplugin_label_id">Id</td>
                     <td><input type="text" name="id" /></td>
                 </tr>
                 <tr>
-                    <td class="form-label">Title</td>
+                    <td class="form-label"
+                        i18n:translate="pas_addplugin_label_title">Title</td>
                     <td><input type="text" name="Title" /></td>
                 </tr>
                 <tr>
                     <td colspan="2">
                         <div class="form-element">
                             <input type="submit"
-                                   name="form.button.Add" value="Add"/>
+                                   name="form.button.Add" value="Add"
+                                   i18n:attributes="value" />
                         </div>
                     </td>
                 </tr>

@@ -1,0 +1,63 @@
+# --- PLEASE EDIT THE LINES BELOW CORRECTLY ---
+# SOME DESCRIPTIVE TITLE.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"POT-Creation-Date: 2012-04-16 14:01+0000\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI +ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=1; plural=0\n"
+"Language-Code: en\n"
+"Language-Name: English\n"
+"Preferred-Encodings: utf-8 latin1\n"
+"Domain: ftw.bridge.client\n"
+
+#: ./ftw/bridge/client/templates/add-pas-plugin.pt:32
+msgid "Add"
+msgstr ""
+
+#. Default: "The target service is currently in maintenace. Try again later."
+#: ./ftw/bridge/client/browser/watcher.py:45
+msgid "error_msg_maintenance"
+msgstr ""
+
+#. Default: "The dashboard portlet could not be created."
+#: ./ftw/bridge/client/browser/watcher.py:58
+msgid "info_error_portlet_creation_failed"
+msgstr ""
+
+#. Default: "A dashboard portlet was created."
+#: ./ftw/bridge/client/browser/watcher.py:52
+msgid "info_msg_portlet_created"
+msgstr ""
+
+#. Default: "Loading ..."
+#: ./ftw/bridge/client/portlets/templates/watcher.pt:18
+msgid "msg_loading"
+msgstr ""
+
+#. Default: "Authenticates bridge requests."
+#: ./ftw/bridge/client/templates/add-pas-plugin.pt:12
+msgid "pas_addplugin_help"
+msgstr ""
+
+#. Default: "Id"
+#: ./ftw/bridge/client/templates/add-pas-plugin.pt:20
+msgid "pas_addplugin_label_id"
+msgstr ""
+
+#. Default: "Title"
+#: ./ftw/bridge/client/templates/add-pas-plugin.pt:25
+msgid "pas_addplugin_label_title"
+msgstr ""
+
+#. Default: "Recently modified"
+#: ./ftw/bridge/client/portlets/watcher.py:36
+msgid "title_watcher_portlet"
+msgstr ""
+

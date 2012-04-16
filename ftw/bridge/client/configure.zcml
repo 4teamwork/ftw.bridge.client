@@ -7,6 +7,8 @@
     xmlns:pas="http://namespaces.zope.org/pluggableauthservice"
     i18n_domain="ftw.bridge.client">
 
+    <i18n:registerTranslations directory="locales" />
+
     <include package=".browser" />
     <include package=".portlets" />
 
