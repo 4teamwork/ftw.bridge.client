@@ -3,7 +3,7 @@ jq(function($) {
     var COMMUNICATION_ERROR = 'An error occured.';
     var MORE_TEXT = 'More...';
 
-    if (document.all[0].lang == 'de') {
+    if ($('html').attr('lang') == 'de') {
         COMMUNICATION_ERROR = 'Ein unbekannter Fehler ist aufgetreten.';
         MORE_TEXT = 'Mehr...';
     }
