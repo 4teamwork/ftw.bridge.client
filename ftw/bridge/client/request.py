@@ -1,10 +1,15 @@
 from AccessControl import getSecurityManager
+from StringIO import StringIO
+from ZODB.POSException import ConflictError
 from ftw.bridge.client.exceptions import MaintenanceError
 from ftw.bridge.client.interfaces import IBridgeConfig
 from ftw.bridge.client.interfaces import IBridgeRequest
+from requests.models import Response
+from zope.app.component.hooks import getSite
 from zope.component import getUtility
 from zope.interface import implements
 import requests
+import urlparse
 
 try:
     import json
@@ -20,11 +25,15 @@ class BridgeRequest(object):
         """
         config = getUtility(IBridgeConfig)
 
-        response = requests.request(
-            method.lower(),
-            self._get_url(config, target, path),
-            headers=self._get_headers(config, headers),
-            **kwargs)
+        if config.get_client_id() == target:
+            response = self._do_traverse(path, headers, **kwargs)
+
+        else:
+            url = self._get_url(config, target, path)
+            request_args = kwargs.copy()
+            request_args['headers'] = self._get_headers(config, headers)
+
+            response = self._do_request(method, url, **request_args)
 
         if int(response.status_code) == 503:
             raise MaintenanceError()
@@ -54,3 +63,40 @@ class BridgeRequest(object):
 
     def _get_current_userid(self):
         return getSecurityManager().getUser().getId()
+
+    def _do_request(self, method, url, **kwargs):
+        return requests.request(method.lower(), url, **kwargs)
+
+    def _do_traverse(self, path, headers, data=None, **kwargs):
+        portal = getSite()
+
+        parsed_path = urlparse.urlparse(path)
+        data = dict(urlparse.parse_qsl(parsed_path.query))
+
+        request = portal.REQUEST
+        # we need to back up the request data and set them new for the
+        # view which is called with the same request (restrictedTraverse)
+        ori_form = request.form
+        request.form = data
+
+        response = Response()
+
+        try:
+            response_data = portal.restrictedTraverse(parsed_path.path)()
+
+        except ConflictError:
+            raise
+
+        except Exception as msg:
+            response.status_code = 500
+            response.raw = StringIO(str(msg))
+
+        else:
+            response.status_code = 200
+            response.raw = StringIO(response_data)
+
+        finally:
+            # restore the request
+            request.form = ori_form
+
+        return response
