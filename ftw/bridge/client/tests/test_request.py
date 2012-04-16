@@ -1,12 +1,15 @@
 from AccessControl import SecurityManagement
 from AccessControl.users import SimpleUser
 from StringIO import StringIO
+from ZODB.POSException import ConflictError
 from ftw.bridge.client.exceptions import MaintenanceError
 from ftw.bridge.client.interfaces import IBridgeRequest
 from ftw.bridge.client.testing import BRIDGE_CONFIG_LAYER
 from ftw.testing import MockTestCase
 from mocker import ANY, ARGS, KWARGS
 from requests.models import Response
+from zope.app.component.hooks import setSite
+from zope.component import getGlobalSiteManager
 from zope.component import queryUtility, getUtility
 from zope.interface.verify import verifyClass
 
@@ -148,7 +151,8 @@ class TestBridgeRequestUtility(MockTestCase):
                 ANY,
                 ANY,
                 headers=ANY,
-                cookies={'aCookie': 'peanut butter cookie'})).result(response)
+                cookies={'aCookie': 'peanut butter cookie'})).result(
+            response)
 
         self.replay()
         utility = getUtility(IBridgeRequest)
@@ -184,3 +188,47 @@ class TestBridgeRequestUtility(MockTestCase):
         self.assertEqual(
             utility.get_json('target-client', '@@json-view'),
             [{'foo': 'bar'}])
+
+    def test_traversing(self):
+        site = self.stub()
+        self.expect(site.getSiteManager()).call(getGlobalSiteManager)
+
+        request = self.create_dummy(
+            form={'ori': 'formdata'})
+        self.expect(site.REQUEST).result(request)
+
+        def view_method():
+            self.assertEqual(request.form, {'foo': 'bar'})
+            return 'view response data'
+
+        def failing_view_method():
+            raise Exception('failed')
+
+        def conflict_error_view_method():
+            raise ConflictError()
+
+        with self.mocker.order():
+            self.expect(site.restrictedTraverse('baz/@@view')()).call(
+                view_method)
+            self.expect(site.restrictedTraverse('baz/@@view')()).call(
+                failing_view_method)
+            self.expect(site.restrictedTraverse('baz/@@view')()).call(
+                conflict_error_view_method)
+
+        self.replay()
+
+        utility = getUtility(IBridgeRequest)
+        setSite(site)
+
+        response = utility('current-client', 'baz/@@view?foo=bar')
+        self.assertEqual(request.form, {'ori': 'formdata'})
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.text, 'view response data')
+
+        response = utility('current-client', 'baz/@@view?foo=bar')
+        self.assertEqual(request.form, {'ori': 'formdata'})
+        self.assertEqual(response.status_code, 500)
+        self.assertIn(response.text, 'failed')
+
+        with self.assertRaises(ConflictError):
+            utility('current-client', 'baz/@@view?foo=bar')
