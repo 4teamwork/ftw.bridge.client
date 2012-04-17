@@ -54,7 +54,7 @@ class WatchAction(BrowserView):
 
             else:
                 IStatusMessage(self.request).addStatusMessage(
-                    _(u'info_error_portlet_creation_failed',
+                    _(u'error_portlet_creation_failed',
                       default=u'The dashboard portlet could not be created.'),
                     type='error')
 
