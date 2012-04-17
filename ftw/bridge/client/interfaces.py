@@ -2,10 +2,17 @@
 # E0211: Method has no argument
 # E0213: Method should have "self" as first argument
 
+from ftw.bridge.client import _
 from zope.interface import Interface
 
 
 PORTAL_URL_PLACEHOLDER = '***portal_url***'
+
+
+MAINTENANCE_ERROR_MESSAGE = _(
+    u'error_msg_maintenance',
+    default=u'The target service is currently in ' + \
+        u'maintenace. Try again later.')
 
 
 class IBridgeConfig(Interface):

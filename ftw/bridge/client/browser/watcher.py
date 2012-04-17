@@ -5,6 +5,7 @@ from datetime import datetime
 from ftw.bridge.client import _
 from ftw.bridge.client.exceptions import MaintenanceError
 from ftw.bridge.client.interfaces import IBridgeRequest
+from ftw.bridge.client.interfaces import MAINTENANCE_ERROR_MESSAGE
 from ftw.bridge.client.portlets.watcher import Assignment
 from ftw.bridge.client.utils import get_brain_url
 from ftw.bridge.client.utils import get_object_url
@@ -42,10 +43,8 @@ class WatchAction(BrowserView):
 
         except MaintenanceError:
             IStatusMessage(self.request).addStatusMessage(
-                _(u'error_msg_maintenance',
-                  default=u'The target service is currently in ' + \
-                      u'maintenace. Try again later.'),
-                type='error')
+                MAINTENANCE_ERROR_MESSAGE, type='error')
+
         else:
             if response.status_code == 200:
                 IStatusMessage(self.request).addStatusMessage(
