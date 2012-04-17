@@ -68,27 +68,27 @@ class RemoteAddFavoriteAction(BrowserView):
         requester = getUtility(IBridgeRequest)
         try:
             response = requester('dashboard', '@@add-favorite',
-                                 params=params)
+                                 params=params, silent=True)
 
         except MaintenanceError:
             IStatusMessage(self.request).addStatusMessage(
                 MAINTENANCE_ERROR_MESSAGE, type='error')
             return False
 
-        if response.status_code == 200:
+        if response is None or response.status_code != 200:
+            IStatusMessage(self.request).addStatusMessage(
+                _(u'favorite_creation_failed',
+                  default=u'The favorite could not be created.'),
+                type='error')
+            return False
+
+        else:
             IStatusMessage(self.request).addStatusMessage(
                 _(u'info_favorite_created',
                   default=u'${title} was added to your favorites.',
                   mapping={'title': title}),
                 type='info')
             return True
-
-        else:
-            IStatusMessage(self.request).addStatusMessage(
-                _(u'favorite_creation_failed',
-                  default=u'The favorite could not be created.'),
-                type='error')
-            return False
 
     def _get_url(self):
         portal_url = getToolByName(self.context, 'portal_url')() + '/'

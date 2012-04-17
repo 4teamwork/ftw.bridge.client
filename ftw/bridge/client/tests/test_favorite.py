@@ -9,6 +9,7 @@ from ftw.bridge.client.testing import INTEGRATION_TESTING
 from ftw.testing import MockTestCase
 from mocker import ARGS, KWARGS, ANY
 from plone.mocktestcase.dummy import Dummy
+from requests.exceptions import ConnectionError
 from requests.models import Response
 from unittest2 import TestCase
 from zope.component import getMultiAdapter
@@ -216,3 +217,23 @@ class TestRemoteAddFavoriteAction(MockTestCase):
 
         self.assertEqual(self.request.response.headers.get('location'),
                          self.page.absolute_url())
+
+    def test_error_status_message_on_requests_exception(self):
+        def raise_connection_error(*args, **kwargs):
+            raise ConnectionError()
+
+        self.expect(self.requests.request(ANY, ANY, KWARGS)).call(
+            raise_connection_error)
+
+        self.replay()
+
+        view = getMultiAdapter((self.page, self.request),
+                               name='remote-add-favorite')
+        view()
+
+        messages = IStatusMessage(self.request).show()
+        self.assertEqual(len(messages), 1)
+        self.assertEqual(messages[0].message,
+                         u'The favorite could not be created.')
+        self.assertEqual(messages[0].type,
+                         'error')
