@@ -72,7 +72,7 @@ class  AddWatcherPortlet(BrowserView):
         membership_tool = getToolByName(self.context, 'portal_membership')
         member = membership_tool.getAuthenticatedMember()
 
-        if not member or not member.getId():
+        if not member.getId():
             raise Exception(
                 'Could not find userid.')
 

@@ -1,3 +1,4 @@
+from AccessControl import SecurityManagement
 from Products.CMFCore.utils import getToolByName
 from ftw.bridge.client.portlets import watcher
 from ftw.bridge.client.testing import INTEGRATION_TESTING
@@ -59,3 +60,26 @@ class TestAddWatcherPortletView(TestCase):
 
         self.assertEqual(view(), 'OK')
         self.assertEqual(len(self._get_portlets()), 2)
+
+        self.assertEqual(view(), 'OK')
+        self.assertEqual(len(self._get_portlets()), 3)
+
+    def test_add_portlet_fails_with_anonymous(self):
+        portal = self.layer['portal']
+        request = self.layer['request']
+
+        request.environ['HTTP_X_BRIDGE_ORIGIN'] = 'client-one'
+        request.form['path'] = '@@watcher-feed?uid=567891234'
+
+        sm = SecurityManagement.getSecurityManager()
+        SecurityManagement.noSecurityManager()
+
+        try:
+            view = queryMultiAdapter((portal, request),
+                                     name='add-watcher-portlet')
+            with self.assertRaises(Exception) as cm:
+                view()
+            self.assertEqual(str(cm.exception), 'Could not find userid.')
+
+        finally:
+            SecurityManagement.setSecurityManager(sm)
