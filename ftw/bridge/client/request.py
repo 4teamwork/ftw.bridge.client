@@ -90,9 +90,7 @@ class BridgeRequest(object):
 
     def _do_traverse(self, path, headers, data=None, **kwargs):
         portal = getSite()
-        public_url = portal.absolute_url()
-        if not public_url.endswith('/'):
-            public_url = public_url + '/'
+        public_url = portal.absolute_url() + '/'
 
         parsed_path = urlparse.urlparse(path)
         form_data = dict(urlparse.parse_qsl(parsed_path.query))
