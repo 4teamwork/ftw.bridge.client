@@ -4,6 +4,7 @@ from ftw.bridge.client.browser import watcher
 from ftw.bridge.client.interfaces import PORTAL_URL_PLACEHOLDER
 from ftw.bridge.client.portlets.watcher import IWatcherPortlet
 from ftw.bridge.client.testing import EXAMPLE_CONTENT_LAYER
+from ftw.bridge.client.utils import json
 from ftw.testing import MockTestCase
 from mocker import ANY, ARGS, KWARGS
 from plone.portlets.constants import USER_CATEGORY
@@ -14,11 +15,6 @@ from requests.models import Response
 from zope.component import getMultiAdapter
 from zope.component import getUtility
 from zope.component import queryMultiAdapter
-
-try:
-    import json
-except ImportError:
-    import simplejson as json
 
 
 DATETIME_FORMAT = '%Y-%m-%dT%H:%M:%S'

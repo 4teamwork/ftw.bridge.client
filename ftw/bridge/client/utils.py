@@ -1,6 +1,11 @@
 from Products.CMFCore.utils import getToolByName
 from ftw.bridge.client.interfaces import PORTAL_URL_PLACEHOLDER
 
+try:
+    import json
+except ImportError:
+    import simplejson as json
+
 
 def get_object_url(obj):
     """Returns the url to this object using, replacing the site url with a

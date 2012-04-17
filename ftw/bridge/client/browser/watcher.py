@@ -9,6 +9,7 @@ from ftw.bridge.client.interfaces import MAINTENANCE_ERROR_MESSAGE
 from ftw.bridge.client.portlets.watcher import Assignment
 from ftw.bridge.client.utils import get_brain_url
 from ftw.bridge.client.utils import get_object_url
+from ftw.bridge.client.utils import json
 from plone.app.portlets.storage import UserPortletAssignmentMapping
 from plone.portlets.constants import USER_CATEGORY
 from plone.portlets.interfaces import IPortletManager
@@ -16,11 +17,6 @@ from plone.portlets.utils import unhashPortletInfo
 from plone.uuid.interfaces import IUUID
 from zope.component import getUtility
 import time
-
-try:
-    import json
-except ImportError:
-    import simplejson as json
 
 
 WATCHER_PORTLET_LIMIT = 5

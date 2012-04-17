@@ -5,18 +5,14 @@ from ftw.bridge.client.exceptions import MaintenanceError
 from ftw.bridge.client.interfaces import IBridgeConfig
 from ftw.bridge.client.interfaces import IBridgeRequest
 from ftw.bridge.client.interfaces import PORTAL_URL_PLACEHOLDER
+from ftw.bridge.client.utils import json
 from requests.models import Response
 from zope.app.component.hooks import getSite
 from zope.component import getUtility
 from zope.interface import implements
 import requests
-import urlparse
 import types
-
-try:
-    import json
-except ImportError:
-    import simplejson as json
+import urlparse
 
 
 def replace_placeholder_in_data(data, public_url):

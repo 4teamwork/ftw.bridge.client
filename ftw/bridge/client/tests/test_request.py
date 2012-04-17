@@ -26,7 +26,7 @@ class TestReplacingPlaceholder(TestCase):
             'baz': {
                 'sub': PORTAL_URL_PLACEHOLDER},
             'barbaz': [PORTAL_URL_PLACEHOLDER],
-            'foobar': (PORTAL_URL_PLACEHOLDER)}
+            'foobar': (PORTAL_URL_PLACEHOLDER,)}
 
         replace_placeholder_in_data(data, 'THEURL')
         self.assertEquals(data, {

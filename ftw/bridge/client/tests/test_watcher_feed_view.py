@@ -1,13 +1,9 @@
 from ftw.bridge.client.interfaces import PORTAL_URL_PLACEHOLDER
 from ftw.bridge.client.testing import EXAMPLE_CONTENT_LAYER
+from ftw.bridge.client.utils import json
 from plone.uuid.interfaces import IUUID
 from unittest2 import TestCase
 from zope.component import queryMultiAdapter
-
-try:
-    import json
-except ImportError:
-    import simplejson as json
 
 
 DATETIME_FORMAT = '%Y-%m-%dT%H:%M:%S'
