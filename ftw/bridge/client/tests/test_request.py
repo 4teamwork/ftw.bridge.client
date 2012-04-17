@@ -22,7 +22,7 @@ class TestReplacingPlaceholder(TestCase):
 
     def test_replace_placeholder_in_data(self):
         data = {
-            'foo': 'bar %s baz' % PORTAL_URL_PLACEHOLDER,
+            'foo': u'bar %s baz' % PORTAL_URL_PLACEHOLDER,
             'bar': 2,
             'baz': {
                 'sub': PORTAL_URL_PLACEHOLDER},
@@ -31,7 +31,7 @@ class TestReplacingPlaceholder(TestCase):
 
         replace_placeholder_in_data(data, 'THEURL')
         self.assertEquals(data, {
-                'foo': 'bar THEURL baz',
+                'foo': u'bar THEURL baz',
                 'bar': 2,
                 'baz': {
                     'sub': 'THEURL'},

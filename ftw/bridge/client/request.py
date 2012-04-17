@@ -18,7 +18,7 @@ import urlparse
 
 
 def replace_placeholder_in_data(data, public_url):
-    if isinstance(data, types.StringType):
+    if isinstance(data, types.StringTypes):
         return data.replace(PORTAL_URL_PLACEHOLDER, public_url)
 
     elif isinstance(data, types.DictType):
