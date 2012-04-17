@@ -11,11 +11,31 @@ from zope.component import getUtility
 from zope.interface import implements
 import requests
 import urlparse
+import types
 
 try:
     import json
 except ImportError:
     import simplejson as json
+
+
+def replace_placeholder_in_data(data, public_url):
+    if isinstance(data, types.StringType):
+        return data.replace(PORTAL_URL_PLACEHOLDER, public_url)
+
+    elif isinstance(data, types.DictType):
+        for key, value in data.items():
+            data[key] = replace_placeholder_in_data(value, public_url)
+        return data
+
+    elif isinstance(data, (types.ListType, types.TupleType)):
+        new = []
+        for value in data:
+            new.append(replace_placeholder_in_data(value, public_url))
+        return new
+
+    else:
+        return data
 
 
 class BridgeRequest(object):
@@ -75,13 +95,16 @@ class BridgeRequest(object):
             public_url = public_url + '/'
 
         parsed_path = urlparse.urlparse(path)
-        data = dict(urlparse.parse_qsl(parsed_path.query))
+        form_data = dict(urlparse.parse_qsl(parsed_path.query))
+        if data:
+            form_data.update(data)
+        replace_placeholder_in_data(form_data, public_url)
 
         request = portal.REQUEST
         # we need to back up the request data and set them new for the
         # view which is called with the same request (restrictedTraverse)
         ori_form = request.form
-        request.form = data
+        request.form = form_data
 
         response = Response()
 

@@ -5,14 +5,37 @@ from ZODB.POSException import ConflictError
 from ftw.bridge.client.exceptions import MaintenanceError
 from ftw.bridge.client.interfaces import IBridgeRequest
 from ftw.bridge.client.interfaces import PORTAL_URL_PLACEHOLDER
+from ftw.bridge.client.request import replace_placeholder_in_data
 from ftw.bridge.client.testing import BRIDGE_CONFIG_LAYER
 from ftw.testing import MockTestCase
 from mocker import ANY, ARGS, KWARGS
 from requests.models import Response
+from unittest2 import TestCase
 from zope.app.component.hooks import setSite
 from zope.component import getGlobalSiteManager
 from zope.component import queryUtility, getUtility
 from zope.interface.verify import verifyClass
+
+
+class TestReplacingPlaceholder(TestCase):
+
+    def test_replace_placeholder_in_data(self):
+        data = {
+            'foo': 'bar %s baz' % PORTAL_URL_PLACEHOLDER,
+            'bar': 2,
+            'baz': {
+                'sub': PORTAL_URL_PLACEHOLDER},
+            'barbaz': [PORTAL_URL_PLACEHOLDER],
+            'foobar': (PORTAL_URL_PLACEHOLDER)}
+
+        replace_placeholder_in_data(data, 'THEURL')
+        self.assertEquals(data, {
+                'foo': 'bar THEURL baz',
+                'bar': 2,
+                'baz': {
+                    'sub': 'THEURL'},
+                'barbaz': ['THEURL'],
+                'foobar': ['THEURL']})
 
 
 class TestBridgeRequestUtility(MockTestCase):
@@ -199,8 +222,10 @@ class TestBridgeRequestUtility(MockTestCase):
             form={'ori': 'formdata'})
         self.expect(site.REQUEST).result(request)
 
+        assertion_data = self.create_dummy()
+
         def view_method():
-            self.assertEqual(request.form, {'foo': 'bar'})
+            assertion_data.form = request.form.copy()
             return 'the url %s@@view should be replaced' % (
                 PORTAL_URL_PLACEHOLDER)
 
@@ -223,7 +248,14 @@ class TestBridgeRequestUtility(MockTestCase):
         utility = getUtility(IBridgeRequest)
         setSite(site)
 
-        response = utility('current-client', 'baz/@@view?foo=bar')
+        response = utility(
+            'current-client',
+            'baz/@@view?foo=bar&baz=%s' % PORTAL_URL_PLACEHOLDER,
+            data={'url': PORTAL_URL_PLACEHOLDER})
+        self.assertEqual(assertion_data.form, {
+                'foo': 'bar',
+                'url': 'http://nohost/plone/',
+                'baz': 'http://nohost/plone/'})
         self.assertEqual(request.form, {'ori': 'formdata'})
         self.assertEqual(response.status_code, 200)
         self.assertEqual(
