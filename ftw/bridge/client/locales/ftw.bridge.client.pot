@@ -4,7 +4,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
-"POT-Creation-Date: 2012-04-16 14:01+0000\n"
+"POT-Creation-Date: 2012-04-17 09:34+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI +ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -22,17 +22,27 @@ msgid "Add"
 msgstr ""
 
 #. Default: "The target service is currently in maintenace. Try again later."
-#: ./ftw/bridge/client/browser/watcher.py:45
+#: ./ftw/bridge/client/interfaces.py:12
 msgid "error_msg_maintenance"
 msgstr ""
 
+#. Default: "The favorite could not be created."
+#: ./ftw/bridge/client/browser/favorite.py:88
+msgid "favorite_creation_failed"
+msgstr ""
+
 #. Default: "The dashboard portlet could not be created."
-#: ./ftw/bridge/client/browser/watcher.py:58
+#: ./ftw/bridge/client/browser/watcher.py:57
 msgid "info_error_portlet_creation_failed"
 msgstr ""
 
+#. Default: "${title} was added to your favorites."
+#: ./ftw/bridge/client/browser/favorite.py:80
+msgid "info_favorite_created"
+msgstr ""
+
 #. Default: "A dashboard portlet was created."
-#: ./ftw/bridge/client/browser/watcher.py:52
+#: ./ftw/bridge/client/browser/watcher.py:51
 msgid "info_msg_portlet_created"
 msgstr ""
 

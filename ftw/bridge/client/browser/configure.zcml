@@ -41,4 +41,11 @@
         permission="zope2.View"
         />
 
+    <browser:page
+        name="remote-add-favorite"
+        for="*"
+        class=".favorite.RemoteAddFavoriteAction"
+        permission="zope2.View"
+        />
+
 </configure>
