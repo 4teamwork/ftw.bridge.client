@@ -4,6 +4,7 @@ from ZODB.POSException import ConflictError
 from ftw.bridge.client.exceptions import MaintenanceError
 from ftw.bridge.client.interfaces import IBridgeConfig
 from ftw.bridge.client.interfaces import IBridgeRequest
+from ftw.bridge.client.interfaces import PORTAL_URL_PLACEHOLDER
 from requests.models import Response
 from zope.app.component.hooks import getSite
 from zope.component import getUtility
@@ -69,6 +70,9 @@ class BridgeRequest(object):
 
     def _do_traverse(self, path, headers, data=None, **kwargs):
         portal = getSite()
+        public_url = portal.absolute_url()
+        if not public_url.endswith('/'):
+            public_url = public_url + '/'
 
         parsed_path = urlparse.urlparse(path)
         data = dict(urlparse.parse_qsl(parsed_path.query))
@@ -93,6 +97,8 @@ class BridgeRequest(object):
 
         else:
             response.status_code = 200
+            response_data = response_data.replace(
+                PORTAL_URL_PLACEHOLDER, public_url)
             response.raw = StringIO(response_data)
 
         finally:

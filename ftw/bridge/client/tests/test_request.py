@@ -4,6 +4,7 @@ from StringIO import StringIO
 from ZODB.POSException import ConflictError
 from ftw.bridge.client.exceptions import MaintenanceError
 from ftw.bridge.client.interfaces import IBridgeRequest
+from ftw.bridge.client.interfaces import PORTAL_URL_PLACEHOLDER
 from ftw.bridge.client.testing import BRIDGE_CONFIG_LAYER
 from ftw.testing import MockTestCase
 from mocker import ANY, ARGS, KWARGS
@@ -192,6 +193,7 @@ class TestBridgeRequestUtility(MockTestCase):
     def test_traversing(self):
         site = self.stub()
         self.expect(site.getSiteManager()).call(getGlobalSiteManager)
+        self.expect(site.absolute_url()).result('http://nohost/plone')
 
         request = self.create_dummy(
             form={'ori': 'formdata'})
@@ -199,7 +201,8 @@ class TestBridgeRequestUtility(MockTestCase):
 
         def view_method():
             self.assertEqual(request.form, {'foo': 'bar'})
-            return 'view response data'
+            return 'the url %s@@view should be replaced' % (
+                PORTAL_URL_PLACEHOLDER)
 
         def failing_view_method():
             raise Exception('failed')
@@ -223,7 +226,9 @@ class TestBridgeRequestUtility(MockTestCase):
         response = utility('current-client', 'baz/@@view?foo=bar')
         self.assertEqual(request.form, {'ori': 'formdata'})
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(response.text, 'view response data')
+        self.assertEqual(
+            response.text,
+            'the url http://nohost/plone/@@view should be replaced')
 
         response = utility('current-client', 'baz/@@view?foo=bar')
         self.assertEqual(request.form, {'ori': 'formdata'})
