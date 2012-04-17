@@ -6,11 +6,13 @@ from ftw.bridge.client.interfaces import IBridgeConfig
 from ftw.bridge.client.interfaces import IBridgeRequest
 from ftw.bridge.client.interfaces import PORTAL_URL_PLACEHOLDER
 from ftw.bridge.client.utils import json
+from requests.exceptions import RequestException
 from requests.models import Response
 from zope.app.component.hooks import getSite
 from zope.component import getUtility
 from zope.interface import implements
 import requests
+import sys
 import types
 import urlparse
 
@@ -37,7 +39,8 @@ def replace_placeholder_in_data(data, public_url):
 class BridgeRequest(object):
     implements(IBridgeRequest)
 
-    def __call__(self, target, path, method='GET', headers=None, **kwargs):
+    def __call__(self, target, path, method='GET', headers=None,
+                 silent=False, **kwargs):
         """Makes a request to a remote client.
         """
         config = getUtility(IBridgeConfig)
@@ -50,7 +53,14 @@ class BridgeRequest(object):
             request_args = kwargs.copy()
             request_args['headers'] = self._get_headers(config, headers)
 
-            response = self._do_request(method, url, **request_args)
+            try:
+                response = self._do_request(method, url, **request_args)
+            except RequestException:
+                if silent:
+                    getSite().error_log.raising(sys.exc_info())
+                    return None
+                else:
+                    raise
 
         if int(response.status_code) == 503:
             raise MaintenanceError()

@@ -9,6 +9,7 @@ from ftw.bridge.client.request import replace_placeholder_in_data
 from ftw.bridge.client.testing import BRIDGE_CONFIG_LAYER
 from ftw.testing import MockTestCase
 from mocker import ANY, ARGS, KWARGS
+from requests.exceptions import ConnectionError
 from requests.models import Response
 from unittest2 import TestCase
 from zope.app.component.hooks import setSite
@@ -269,3 +270,35 @@ class TestBridgeRequestUtility(MockTestCase):
 
         with self.assertRaises(ConflictError):
             utility('current-client', 'baz/@@view?foo=bar')
+
+    def test_silent_error_is_logged(self):
+        def raise_connection_error(*args, **kwargs):
+            raise ConnectionError()
+
+        self.expect(self.requests.request(ANY, ANY, KWARGS)).call(
+            raise_connection_error)
+
+        site = self.stub()
+        self.expect(site.getSiteManager()).call(getGlobalSiteManager)
+        self.expect(site.error_log.raising(ANY))
+
+        self.replay()
+
+        utility = getUtility(IBridgeRequest)
+        setSite(site)
+
+        self.assertEqual(
+            utility('target-client', 'path/to/@@something', silent=True),
+            None)
+
+    def test_nonsilent_error_is_reraised(self):
+        def raise_connection_error(*args, **kwargs):
+            raise ConnectionError()
+
+        self.expect(self.requests.request(ANY, ANY, KWARGS)).call(
+            raise_connection_error)
+
+        self.replay()
+        utility = getUtility(IBridgeRequest)
+        with self.assertRaises(ConnectionError):
+            utility('target-client', 'path/to/@@something')
