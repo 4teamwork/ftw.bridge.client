@@ -1,3 +1,4 @@
+from Products.CMFCore.utils import getToolByName
 from ftw.testing.layer import ComponentRegistryLayer
 from plone.app.testing import IntegrationTesting
 from plone.app.testing import PLONE_INTEGRATION_TESTING
@@ -80,6 +81,13 @@ class IntegrationTestingLayer(PloneTestingLayer):
 
     def setUpPloneSite(self, portal):
         applyProfile(portal, 'ftw.bridge.client:default')
+
+        mtool = getToolByName(portal, 'portal_membership')
+        setRoles(portal, TEST_USER_ID, ['Manager'])
+        portal.invokeFactory('Folder', 'Members', title='Members')
+        mtool.setMemberareaCreationFlag()
+        mtool.createMemberarea(TEST_USER_ID)
+        setRoles(portal, TEST_USER_ID, ['Member'])
 
 
 INTEGRATION_FIXTURE = IntegrationTestingLayer()

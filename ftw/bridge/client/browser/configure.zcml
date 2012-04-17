@@ -34,4 +34,11 @@
         permission="zope2.View"
         />
 
+    <browser:page
+        name="add-favorite"
+        for="Products.CMFPlone.interfaces.siteroot.IPloneSiteRoot"
+        class=".favorite.AddFavorite"
+        permission="zope2.View"
+        />
+
 </configure>
