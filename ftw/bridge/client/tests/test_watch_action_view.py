@@ -6,6 +6,7 @@ from ftw.bridge.client.testing import EXAMPLE_CONTENT_LAYER
 from ftw.testing import MockTestCase
 from mocker import ANY, ARGS, KWARGS
 from plone.uuid.interfaces import IUUID
+from requests.exceptions import ConnectionError
 from requests.models import Response
 from zope.component import getMultiAdapter
 from zope.component import queryMultiAdapter
@@ -105,6 +106,27 @@ class TestWatchActionView(MockTestCase):
                 ANY, bridge_path, headers=ANY,
                 params={'path': feed_path})).result(
             self._create_response(status_code=500, raw='Eror'))
+
+        self.replay()
+
+        view = getMultiAdapter((context, request), name='watch')
+        view()
+        self.assertEqual(request.response.headers.get('location'),
+                         context.absolute_url())
+
+        messages = IStatusMessage(request).show()
+        self.assertEqual(len(messages), 1)
+        self.assertEqual(messages[0].message,
+                         u'The dashboard portlet could not be created.')
+
+    def test_error_status_message_on_requests_exception(self):
+        def raise_connection_error(*args, **kwargs):
+            raise ConnectionError()
+        context = self.layer['folder']
+        request = self.layer['request']
+
+        self.expect(self.requests.request(ANY, ANY, KWARGS)).call(
+            raise_connection_error)
 
         self.replay()
 

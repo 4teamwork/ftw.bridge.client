@@ -35,24 +35,25 @@ class WatchAction(BrowserView):
         requester = getUtility(IBridgeRequest)
         try:
             response = requester('dashboard', '@@add-watcher-portlet',
-                                 params={'path': feed_path})
+                                 params={'path': feed_path},
+                                 silent=True)
 
         except MaintenanceError:
             IStatusMessage(self.request).addStatusMessage(
                 MAINTENANCE_ERROR_MESSAGE, type='error')
 
         else:
-            if response.status_code == 200:
-                IStatusMessage(self.request).addStatusMessage(
-                    _(u'info_msg_portlet_created',
-                      default=u'A dashboard portlet was created.'),
-                    type='info')
-
-            else:
+            if response is None or response.status_code != 200:
                 IStatusMessage(self.request).addStatusMessage(
                     _(u'error_portlet_creation_failed',
                       default=u'The dashboard portlet could not be created.'),
                     type='error')
+
+            else:
+                IStatusMessage(self.request).addStatusMessage(
+                    _(u'info_msg_portlet_created',
+                      default=u'A dashboard portlet was created.'),
+                    type='info')
 
         referer = self.request.environ.get('HTTP_REFERER')
         if referer:
