@@ -71,7 +71,11 @@ class BridgeRequest(object):
         """Makes a request to a JSON view on a remote client, return the
         converted python objects.
         """
-        return json.loads(self(*args, **kwargs).text)
+        response = self(*args, **kwargs)
+        if response is None:
+            return None
+        else:
+            return json.loads(response.text)
 
     def _get_url(self, config, target, path):
         if path.startswith('/'):
