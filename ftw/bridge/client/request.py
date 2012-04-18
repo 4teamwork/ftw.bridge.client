@@ -72,7 +72,7 @@ class BridgeRequest(object):
         converted python objects.
         """
         response = self(*args, **kwargs)
-        if response is None:
+        if response is None or response.status_code != 200:
             return None
         else:
             return json.loads(response.text)
