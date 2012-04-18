@@ -1,37 +1,23 @@
 from AccessControl import SecurityManagement
 from AccessControl.users import SimpleUser
 from Products.statusmessages.interfaces import IStatusMessage
-from StringIO import StringIO
 from ftw.bridge.client.testing import EXAMPLE_CONTENT_LAYER
-from ftw.testing import MockTestCase
-from mocker import ANY, ARGS, KWARGS
+from ftw.bridge.client.tests.base import RequestAwareTestCase
 from plone.uuid.interfaces import IUUID
-from requests.exceptions import ConnectionError
-from requests.models import Response
 from zope.component import getMultiAdapter
 from zope.component import queryMultiAdapter
+import urllib2
 
 
-class TestWatchActionView(MockTestCase):
+class TestWatchActionView(RequestAwareTestCase):
 
     layer = EXAMPLE_CONTENT_LAYER
 
     def setUp(self):
-        MockTestCase.setUp(self)
-
-        self.requests = self.mocker.replace('requests')
-        # Let the "requests" packaage not do any requests at all while
-        # testing. We do this by expecting any request call zero times.
-        self.expect(self.requests.request(ARGS, KWARGS)).count(0)
+        RequestAwareTestCase.setUp(self)
 
         user = SimpleUser('john.doe', 'pw', [], [])
         SecurityManagement.newSecurityManager(object(), user)
-
-    def _create_response(self, status_code=200, raw='response data'):
-        response = Response()
-        response.status_code = status_code
-        response.raw = StringIO(raw)
-        return response
 
     def test_component_is_registered(self):
         context = self.stub()
@@ -51,9 +37,8 @@ class TestWatchActionView(MockTestCase):
         feed_path = '@@watcher-feed?uid=%s' % IUUID(context)
         bridge_path = 'http://bridge/proxy/dashboard/@@add-watcher-portlet'
 
-        self.expect(self.requests.request(
-                ANY, bridge_path, headers=ANY,
-                params={'path': feed_path})).result(
+        self._expect_request(url=bridge_path,
+                             data={'path': feed_path}).result(
             self._create_response(raw='OK'))
 
         self.replay()
@@ -74,13 +59,8 @@ class TestWatchActionView(MockTestCase):
         referer_url = 'http://nohost/plone/some-folder'
         request.environ['HTTP_REFERER'] = referer_url
 
-        feed_path = '@@watcher-feed?uid=%s' % IUUID(context)
-        bridge_path = 'http://bridge/proxy/dashboard/@@add-watcher-portlet'
-
-        self.expect(self.requests.request(
-                ANY, bridge_path, headers=ANY,
-                params={'path': feed_path})).result(
-            self._create_response(status_code=503, raw='Maintenance'))
+        self._expect_request().throw(urllib2.HTTPError(
+                'url', 503, 'Service Unavailable', None, None))
 
         self.replay()
 
@@ -99,13 +79,8 @@ class TestWatchActionView(MockTestCase):
         context = self.layer['folder']
         request = self.layer['request']
 
-        feed_path = '@@watcher-feed?uid=%s' % IUUID(context)
-        bridge_path = 'http://bridge/proxy/dashboard/@@add-watcher-portlet'
-
-        self.expect(self.requests.request(
-                ANY, bridge_path, headers=ANY,
-                params={'path': feed_path})).result(
-            self._create_response(status_code=500, raw='Eror'))
+        self._expect_request().throw(urllib2.HTTPError(
+                'url', 500, 'Internal Server Error', None, None))
 
         self.replay()
 
@@ -120,13 +95,11 @@ class TestWatchActionView(MockTestCase):
                          u'The dashboard portlet could not be created.')
 
     def test_error_status_message_on_requests_exception(self):
-        def raise_connection_error(*args, **kwargs):
-            raise ConnectionError()
         context = self.layer['folder']
         request = self.layer['request']
 
-        self.expect(self.requests.request(ANY, ANY, KWARGS)).call(
-            raise_connection_error)
+        self._expect_request().throw(
+            urllib2.URLError('Connection failed'))
 
         self.replay()
 

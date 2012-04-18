@@ -1,21 +1,19 @@
 from AccessControl import SecurityManagement
 from AccessControl.users import SimpleUser
-from StringIO import StringIO
 from ZODB.POSException import ConflictError
 from ftw.bridge.client.exceptions import MaintenanceError
 from ftw.bridge.client.interfaces import IBridgeRequest
 from ftw.bridge.client.interfaces import PORTAL_URL_PLACEHOLDER
 from ftw.bridge.client.request import replace_placeholder_in_data
 from ftw.bridge.client.testing import BRIDGE_CONFIG_LAYER
-from ftw.testing import MockTestCase
-from mocker import ANY, ARGS, KWARGS
-from requests.exceptions import ConnectionError
-from requests.models import Response
+from ftw.bridge.client.tests.base import RequestAwareTestCase
+from mocker import ANY
 from unittest2 import TestCase
 from zope.app.component.hooks import setSite
 from zope.component import getGlobalSiteManager
 from zope.component import queryUtility, getUtility
 from zope.interface.verify import verifyClass
+import urllib2
 
 
 class TestReplacingPlaceholder(TestCase):
@@ -39,29 +37,18 @@ class TestReplacingPlaceholder(TestCase):
                 'foobar': ['THEURL']})
 
 
-class TestBridgeRequestUtility(MockTestCase):
+class TestBridgeRequestUtility(RequestAwareTestCase):
 
     layer = BRIDGE_CONFIG_LAYER
 
     def setUp(self):
-        MockTestCase.setUp(self)
-
-        self.requests = self.mocker.replace('requests')
-        # Let the "requests" packaage not do any requests at all while
-        # testing. We do this by expecting any request call zero times.
-        self.expect(self.requests.request(ARGS, KWARGS)).count(0)
+        RequestAwareTestCase.setUp(self)
 
         user = SimpleUser('john.doe', 'pw', [], [])
         SecurityManagement.newSecurityManager(object(), user)
 
     def tearDown(self):
         SecurityManagement.noSecurityManager()
-
-    def _create_response(self, status_code=200, raw='response data'):
-        response = Response()
-        response.status_code = status_code
-        response.raw = StringIO(raw)
-        return response
 
     def test_component_is_registered(self):
         self.replay()
@@ -78,11 +65,9 @@ class TestBridgeRequestUtility(MockTestCase):
 
     def test_request_path(self):
         response = self._create_response()
-        self.expect(self.requests.request(
-                ANY,
-                'http://bridge/proxy/target-client/path/to/@@something',
-                headers=ANY,
-                params=None)).result(response)
+        self._expect_request(
+            url='http://bridge/proxy/target-client/path/to/@@something'
+            ).result(response)
 
         self.replay()
         utility = getUtility(IBridgeRequest)
@@ -93,11 +78,9 @@ class TestBridgeRequestUtility(MockTestCase):
 
     def test_request_path_with_leading_slash(self):
         response = self._create_response()
-        self.expect(self.requests.request(
-                ANY,
-                'http://bridge/proxy/target-client/@@something',
-                headers=ANY,
-                params=None)).result(response)
+        self._expect_request(
+            url='http://bridge/proxy/target-client/@@something'
+            ).result(response)
 
         self.replay()
         utility = getUtility(IBridgeRequest)
@@ -106,46 +89,12 @@ class TestBridgeRequestUtility(MockTestCase):
             utility('target-client', '/@@something'),
             response)
 
-    def test_request_method_default(self):
-        response = self._create_response()
-        self.expect(self.requests.request(
-                'get',
-                ANY,
-                headers=ANY,
-                params=None)).result(response)
-
-        self.replay()
-        utility = getUtility(IBridgeRequest)
-
-
-        self.assertEqual(
-            utility('target-client', '@@something'),
-            response)
-
-    def test_request_method_POST(self):
-        response = self._create_response()
-        self.expect(self.requests.request(
-                'post',
-                ANY,
-                headers=ANY,
-                params=None)).result(response)
-
-        self.replay()
-        utility = getUtility(IBridgeRequest)
-
-        self.assertEqual(
-            utility('target-client', '@@something', method='POST'),
-            response)
-
     def test_request_default_headers(self):
         response = self._create_response()
-        self.expect(self.requests.request(
-                ANY,
-                ANY,
-                headers={'X-BRIDGE-ORIGIN': 'current-client',
-                         'X-BRIDGE-AC': 'john.doe'},
-                params=None)).result(
-            response)
+        self._expect_request(
+            headers={'X-BRIDGE-ORIGIN': 'current-client',
+                     'X-BRIDGE-AC': 'john.doe'}
+            ).result(response)
 
         self.replay()
         utility = getUtility(IBridgeRequest)
@@ -156,14 +105,11 @@ class TestBridgeRequestUtility(MockTestCase):
 
     def test_request_custom_headers(self):
         response = self._create_response()
-        self.expect(self.requests.request(
-                ANY,
-                ANY,
-                headers={'X-BRIDGE-ORIGIN': 'current-client',
-                         'X-BRIDGE-AC': 'john.doe',
-                         'X-CUSTOM-HEADER': 'some data'},
-                params=None)).result(
-            response)
+        self._expect_request(
+            headers={'X-BRIDGE-ORIGIN': 'current-client',
+                     'X-BRIDGE-AC': 'john.doe',
+                     'X-CUSTOM-HEADER': 'some data'}
+            ).result(response)
 
         self.replay()
         utility = getUtility(IBridgeRequest)
@@ -178,12 +124,7 @@ class TestBridgeRequestUtility(MockTestCase):
 
     def test_passed_data(self):
         response = self._create_response()
-        self.expect(self.requests.request(
-                ANY,
-                ANY,
-                headers=ANY,
-                params={'foo': 'bar'})).result(
-            response)
+        self._expect_request(data={'foo': 'bar'}).result(response)
 
         self.replay()
         utility = getUtility(IBridgeRequest)
@@ -193,13 +134,8 @@ class TestBridgeRequestUtility(MockTestCase):
             response)
 
     def test_maintenance_response_raises_exception(self):
-        response = self._create_response(status_code='503',
-                                         raw='Service Unavailable')
-        self.expect(self.requests.request(
-                ANY,
-                ANY,
-                headers=ANY,
-                params=None)).result(response)
+        self._expect_request().throw(urllib2.HTTPError(
+                'url', 503, 'Service Unavailable', None, None))
 
         self.replay()
         utility = getUtility(IBridgeRequest)
@@ -209,11 +145,9 @@ class TestBridgeRequestUtility(MockTestCase):
 
     def test_get_json(self):
         response = self._create_response(raw='[{"foo": "bar"}]')
-        self.expect(self.requests.request(
-                ANY,
-                'http://bridge/proxy/target-client/@@json-view',
-                headers=ANY,
-                params=None)).result(response)
+        self._expect_request(
+            url='http://bridge/proxy/target-client/@@json-view',
+            ).result(response)
 
         self.replay()
         utility = getUtility(IBridgeRequest)
@@ -221,6 +155,24 @@ class TestBridgeRequestUtility(MockTestCase):
         self.assertEqual(
             utility.get_json('target-client', '@@json-view'),
             [{'foo': 'bar'}])
+
+    def test_get_json_error(self):
+        self._expect_request().throw(
+            urllib2.URLError('Connection failed'))
+
+        site = self.stub()
+        self.expect(site.getSiteManager()).call(getGlobalSiteManager)
+        self.expect(site.error_log.raising(ANY))
+
+        self.replay()
+
+        utility = getUtility(IBridgeRequest)
+        setSite(site)
+
+        self.assertEqual(
+            utility.get_json('target-client',
+                             'path/to/@@something', silent=True),
+            None)
 
     def test_traversing(self):
         site = self.stub()
@@ -238,25 +190,23 @@ class TestBridgeRequestUtility(MockTestCase):
             return 'the url %s@@view should be replaced' % (
                 PORTAL_URL_PLACEHOLDER)
 
-        def failing_view_method():
-            raise Exception('failed')
-
-        def conflict_error_view_method():
-            raise ConflictError()
-
         with self.mocker.order():
+            # test 1
             self.expect(site.restrictedTraverse('baz/@@view')()).call(
                 view_method)
-            self.expect(site.restrictedTraverse('baz/@@view')()).call(
-                failing_view_method)
-            self.expect(site.restrictedTraverse('baz/@@view')()).call(
-                conflict_error_view_method)
+            # test 2
+            self.expect(site.restrictedTraverse('baz/@@view')()).throw(
+                Exception('failed'))
+            # test 3
+            self.expect(site.restrictedTraverse('baz/@@view')()).throw(
+                ConflictError())
 
         self.replay()
 
         utility = getUtility(IBridgeRequest)
         setSite(site)
 
+        # test 1
         response = utility(
             'current-client',
             'baz/@@view?foo=bar&baz=%s' % PORTAL_URL_PLACEHOLDER,
@@ -266,25 +216,26 @@ class TestBridgeRequestUtility(MockTestCase):
                 'url': 'http://nohost/plone/',
                 'baz': 'http://nohost/plone/'})
         self.assertEqual(request.form, {'ori': 'formdata'})
-        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.code, 200)
         self.assertEqual(
-            response.text,
+            response.read(),
             'the url http://nohost/plone/@@view should be replaced')
 
-        response = utility('current-client', 'baz/@@view?foo=bar')
+        # test 2
+        with self.assertRaises(urllib2.HTTPError) as cm:
+            response = utility('current-client', 'baz/@@view?foo=bar')
+        response = cm.exception
         self.assertEqual(request.form, {'ori': 'formdata'})
-        self.assertEqual(response.status_code, 500)
-        self.assertIn(response.text, 'failed')
+        self.assertEqual(response.code, 500)
+        self.assertIn(response.read(), 'failed')
 
+        # test 3
         with self.assertRaises(ConflictError):
             utility('current-client', 'baz/@@view?foo=bar')
 
     def test_silent_error_is_logged(self):
-        def raise_connection_error(*args, **kwargs):
-            raise ConnectionError()
-
-        self.expect(self.requests.request(ANY, ANY, KWARGS)).call(
-            raise_connection_error)
+        self._expect_request().throw(
+            urllib2.URLError('Connection failed'))
 
         site = self.stub()
         self.expect(site.getSiteManager()).call(getGlobalSiteManager)
@@ -300,13 +251,10 @@ class TestBridgeRequestUtility(MockTestCase):
             None)
 
     def test_nonsilent_error_is_reraised(self):
-        def raise_connection_error(*args, **kwargs):
-            raise ConnectionError()
-
-        self.expect(self.requests.request(ANY, ANY, KWARGS)).call(
-            raise_connection_error)
+        self._expect_request().throw(
+            urllib2.URLError('Connection failed'))
 
         self.replay()
         utility = getUtility(IBridgeRequest)
-        with self.assertRaises(ConnectionError):
+        with self.assertRaises(urllib2.URLError):
             utility('target-client', 'path/to/@@something')

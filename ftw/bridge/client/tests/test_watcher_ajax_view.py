@@ -1,18 +1,15 @@
 from Products.CMFCore.utils import getToolByName
-from StringIO import StringIO
 from ftw.bridge.client.browser import watcher
 from ftw.bridge.client.exceptions import MaintenanceError
 from ftw.bridge.client.interfaces import PORTAL_URL_PLACEHOLDER
 from ftw.bridge.client.portlets.watcher import IWatcherPortlet
 from ftw.bridge.client.testing import EXAMPLE_CONTENT_LAYER
+from ftw.bridge.client.tests.base import RequestAwareTestCase
 from ftw.bridge.client.utils import json
-from ftw.testing import MockTestCase
-from mocker import ANY, ARGS, KWARGS
 from plone.portlets.constants import USER_CATEGORY
 from plone.portlets.interfaces import IPortletManager
 from plone.portlets.utils import hashPortletInfo
 from plone.uuid.interfaces import IUUID
-from requests.models import Response
 from zope.component import getMultiAdapter
 from zope.component import getUtility
 from zope.component import queryMultiAdapter
@@ -21,7 +18,7 @@ from zope.component import queryMultiAdapter
 DATETIME_FORMAT = '%Y-%m-%dT%H:%M:%S'
 
 
-class TestAjaxLoadPortletDataView(MockTestCase):
+class TestAjaxLoadPortletDataView(RequestAwareTestCase):
 
     layer = EXAMPLE_CONTENT_LAYER
 
@@ -44,7 +41,7 @@ class TestAjaxLoadPortletDataView(MockTestCase):
                 return portlet, hashPortletInfo(info)
 
     def setUp(self):
-        MockTestCase.setUp(self)
+        RequestAwareTestCase.setUp(self)
 
         portal = self.layer['portal']
         request = self.layer['request']
@@ -53,11 +50,6 @@ class TestAjaxLoadPortletDataView(MockTestCase):
         request.form['path'] = '@@watcher-feed?uid=567891234'
 
         self.assertEqual(watcher.AddWatcherPortlet(portal, request)(), 'OK')
-
-        self.requests = self.mocker.replace('requests')
-        # Let the "requests" packaage not do any requests at all while
-        # testing. We do this by expecting any request call zero times.
-        self.expect(self.requests.request(ARGS, KWARGS)).count(0)
 
     def test_view(self):
         portal = self.layer['portal']
@@ -69,17 +61,12 @@ class TestAjaxLoadPortletDataView(MockTestCase):
         feed_view = getMultiAdapter((portal, request), name='watcher-feed')
         feed_data = feed_view()
 
-        response = Response()
-        response.status_code = 200
-        response.raw = StringIO(feed_data)
-
         portlet, portlet_hash = self._get_portlet_and_hash()
-        self.expect(self.requests.request(
-                ANY,
-                'http://bridge/proxy/%s/%s' % (portlet.client_id,
-                                               portlet.path),
-                headers=ANY,
-                params=None)).result(response)
+        url = 'http://bridge/proxy/%s/%s' % (portlet.client_id,
+                                             portlet.path)
+
+        self._expect_request(url=url).result(self._create_response(
+                status_code=200, raw=feed_data))
 
         self.replay()
         request.form['hash'] = portlet_hash
@@ -115,24 +102,9 @@ class TestAjaxLoadPortletDataView(MockTestCase):
         folder = self.layer['folder']
 
         request.form['uid'] = IUUID(folder)
-        feed_view = getMultiAdapter((portal, request), name='watcher-feed')
-        feed_data = feed_view()
 
-        response = Response()
-        response.status_code = 200
-        response.raw = StringIO(feed_data)
-
-        portlet, portlet_hash = self._get_portlet_and_hash()
-
-        def raise_maintenance_error(*args, **kwargs):
-            raise MaintenanceError()
-
-        self.expect(self.requests.request(
-                ANY,
-                'http://bridge/proxy/%s/%s' % (portlet.client_id,
-                                               portlet.path),
-                headers=ANY,
-                params=None)).call(raise_maintenance_error)
+        _portlet, portlet_hash = self._get_portlet_and_hash()
+        self._expect_request().throw(MaintenanceError())
 
         self.replay()
         request.form['hash'] = portlet_hash

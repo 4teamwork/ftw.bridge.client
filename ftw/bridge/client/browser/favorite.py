@@ -75,7 +75,7 @@ class RemoteAddFavoriteAction(BrowserView):
                 MAINTENANCE_ERROR_MESSAGE, type='error')
             return False
 
-        if response is None or response.status_code != 200:
+        if response is None or response.code != 200:
             IStatusMessage(self.request).addStatusMessage(
                 _(u'favorite_creation_failed',
                   default=u'The favorite could not be created.'),

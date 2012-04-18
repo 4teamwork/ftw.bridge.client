@@ -43,7 +43,7 @@ class WatchAction(BrowserView):
                 MAINTENANCE_ERROR_MESSAGE, type='error')
 
         else:
-            if response is None or response.status_code != 200:
+            if response is None or response.code != 200:
                 IStatusMessage(self.request).addStatusMessage(
                     _(u'error_portlet_creation_failed',
                       default=u'The dashboard portlet could not be created.'),

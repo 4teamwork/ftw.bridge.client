@@ -2,17 +2,14 @@ from AccessControl import SecurityManagement
 from AccessControl.users import SimpleUser
 from Products.CMFCore.utils import getToolByName
 from Products.statusmessages.interfaces import IStatusMessage
-from StringIO import StringIO
 from ftw.bridge.client.interfaces import PORTAL_URL_PLACEHOLDER
 from ftw.bridge.client.testing import EXAMPLE_CONTENT_LAYER
 from ftw.bridge.client.testing import INTEGRATION_TESTING
-from ftw.testing import MockTestCase
-from mocker import ARGS, KWARGS, ANY
+from ftw.bridge.client.tests.base import RequestAwareTestCase
 from plone.mocktestcase.dummy import Dummy
-from requests.exceptions import ConnectionError
-from requests.models import Response
 from unittest2 import TestCase
 from zope.component import getMultiAdapter
+import urllib2
 
 
 class TestAddWatcherPortletView(TestCase):
@@ -66,17 +63,12 @@ class TestAddWatcherPortletView(TestCase):
                          'favorite-3')
 
 
-class TestRemoteAddFavoriteAction(MockTestCase):
+class TestRemoteAddFavoriteAction(RequestAwareTestCase):
 
     layer = EXAMPLE_CONTENT_LAYER
 
     def setUp(self):
-        MockTestCase.setUp(self)
-
-        self.requests = self.mocker.replace('requests')
-        # Let the "requests" packaage not do any requests at all while
-        # testing. We do this by expecting any request call zero times.
-        self.expect(self.requests.request(ARGS, KWARGS)).count(0)
+        RequestAwareTestCase.setUp(self)
 
         user = SimpleUser('john.doe', 'pw', [], [])
         SecurityManagement.newSecurityManager(object(), user)
@@ -93,12 +85,6 @@ class TestRemoteAddFavoriteAction(MockTestCase):
             del self.request.environ['HTTP_REFERER']
         SecurityManagement.noSecurityManager()
 
-    def _create_response(self, status_code=200, raw='response data'):
-        response = Response()
-        response.status_code = status_code
-        response.raw = StringIO(raw)
-        return response
-
     def test_component_is_registered(self):
         self.replay()
         getMultiAdapter((self.page, self.request),
@@ -108,10 +94,9 @@ class TestRemoteAddFavoriteAction(MockTestCase):
         favorite_url = '%sfeed-folder/page' % PORTAL_URL_PLACEHOLDER
         bridge_url = 'http://bridge/proxy/dashboard/@@add-favorite'
 
-        self.expect(self.requests.request(
-                ANY, bridge_url, headers=ANY,
-                params={'title': 'The page',
-                        'url': favorite_url})).result(
+        self._expect_request(url=bridge_url,
+                             data={'title': 'The page',
+                                   'url': favorite_url}).result(
             self._create_response(raw='OK'))
 
         self.replay()
@@ -120,8 +105,7 @@ class TestRemoteAddFavoriteAction(MockTestCase):
         view()
 
     def test_status_message_on_success(self):
-        self.expect(self.requests.request(ANY, ANY, KWARGS)).result(
-            self._create_response(raw='OK'))
+        self._expect_request().result(self._create_response(raw='OK'))
 
         self.replay()
         view = getMultiAdapter((self.page, self.request),
@@ -136,8 +120,7 @@ class TestRemoteAddFavoriteAction(MockTestCase):
                          'info')
 
     def test_redirects_back(self):
-        self.expect(self.requests.request(ANY, ANY, KWARGS)).result(
-            self._create_response(raw='OK'))
+        self._expect_request().result(self._create_response(raw='OK'))
 
         self.replay()
         view = getMultiAdapter((self.page, self.request),
@@ -148,8 +131,8 @@ class TestRemoteAddFavoriteAction(MockTestCase):
                          self.page.absolute_url())
 
     def test_maintenance_status_message(self):
-        self.expect(self.requests.request(ANY, ANY, KWARGS)).result(
-            self._create_response(status_code=503, raw='Maintenance'))
+        self._expect_request().throw(urllib2.HTTPError(
+                'url', 503, 'Service Unavailable', None, None))
 
         self.replay()
         view = getMultiAdapter((self.page, self.request),
@@ -165,8 +148,8 @@ class TestRemoteAddFavoriteAction(MockTestCase):
                          'error')
 
     def test_maintenance_redirect(self):
-        self.expect(self.requests.request(ANY, ANY, KWARGS)).result(
-            self._create_response(status_code=503, raw='Maintenance'))
+        self._expect_request().throw(urllib2.HTTPError(
+                'url', 503, 'Service Unavailable', None, None))
 
         self.replay()
         view = getMultiAdapter((self.page, self.request),
@@ -177,7 +160,7 @@ class TestRemoteAddFavoriteAction(MockTestCase):
                          self.page.absolute_url())
 
     def test_error_status_message(self):
-        self.expect(self.requests.request(ANY, ANY, KWARGS)).result(
+        self._expect_request().result(
             self._create_response(status_code=500, raw='Error'))
         self.replay()
 
@@ -193,7 +176,7 @@ class TestRemoteAddFavoriteAction(MockTestCase):
                          'error')
 
     def test_error_redirect(self):
-        self.expect(self.requests.request(ANY, ANY, KWARGS)).result(
+        self._expect_request().result(
             self._create_response(status_code=500, raw='Error'))
 
         self.replay()
@@ -207,7 +190,7 @@ class TestRemoteAddFavoriteAction(MockTestCase):
     def test_redirects_to_context_when_no_referer_is_found(self):
         if 'HTTP_REFERER' in self.request.environ:
             del self.request.environ['HTTP_REFERER']
-        self.expect(self.requests.request(ANY, ANY, KWARGS)).result(
+        self._expect_request().result(
             self._create_response(status_code=500, raw='Error'))
 
         self.replay()
@@ -219,11 +202,8 @@ class TestRemoteAddFavoriteAction(MockTestCase):
                          self.page.absolute_url())
 
     def test_error_status_message_on_requests_exception(self):
-        def raise_connection_error(*args, **kwargs):
-            raise ConnectionError()
-
-        self.expect(self.requests.request(ANY, ANY, KWARGS)).call(
-            raise_connection_error)
+        self._expect_request().throw(
+            urllib2.URLError('Connection failed'))
 
         self.replay()
 

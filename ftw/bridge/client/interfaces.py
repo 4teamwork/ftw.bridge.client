@@ -42,7 +42,7 @@ class IBridgeRequest(Interface):
     """A utility for sending requests to the bridge.
     """
 
-    def __call__(target, path, method='GET', headers=None, data=None,
+    def __call__(target, path, headers=None, data=None,
                  silent=False):
         """Make a request to the client ``target`` client through the
         configured bridge.
@@ -51,7 +51,6 @@ class IBridgeRequest(Interface):
         ``target`` -- Target client id as configured on the bridge.
         ``path`` -- Path and view to request, relative to the site root on
         the remote client.
-        ``method`` -- Request method (defaults to GET).
         ``headers`` -- Dict of additional request headers (optional).
         ``data`` -- Dict of data to pass (optional).
         ``silent`` -- Return None on connection error instead of raising

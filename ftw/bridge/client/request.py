@@ -6,14 +6,14 @@ from ftw.bridge.client.interfaces import IBridgeConfig
 from ftw.bridge.client.interfaces import IBridgeRequest
 from ftw.bridge.client.interfaces import PORTAL_URL_PLACEHOLDER
 from ftw.bridge.client.utils import json
-from requests.exceptions import RequestException
-from requests.models import Response
 from zope.app.component.hooks import getSite
 from zope.component import getUtility
 from zope.interface import implements
-import requests
+import os.path
 import sys
 import types
+import urllib
+import urllib2
 import urlparse
 
 
@@ -39,42 +39,32 @@ def replace_placeholder_in_data(data, public_url):
 class BridgeRequest(object):
     implements(IBridgeRequest)
 
-    def __call__(self, target, path, method='GET', headers=None,
-                 data=None, silent=False):
+    def __call__(self, target, path, headers=None, data=None, silent=False):
         """Makes a request to a remote client.
         """
-        config = getUtility(IBridgeConfig)
+        try:
+            return self._request(target, path, headers, data)
 
-        if config.get_client_id() == target:
-            response = self._do_traverse(path, headers, data)
+        except (urllib2.HTTPError, urllib2.URLError), exc:
+            if getattr(exc, 'code', None) == 503:
+                raise MaintenanceError()
 
-        else:
-            url = self._get_url(config, target, path)
-            headers = self._get_headers(config, headers)
+            elif silent:
+                getSite().error_log.raising(sys.exc_info())
+                return None
 
-            try:
-                response = self._do_request(method, url, headers, data)
-            except RequestException:
-                if silent:
-                    getSite().error_log.raising(sys.exc_info())
-                    return None
-                else:
-                    raise
-
-        if int(response.status_code) == 503:
-            raise MaintenanceError()
-        else:
-            return response
+            else:
+                raise
 
     def get_json(self, *args, **kwargs):
         """Makes a request to a JSON view on a remote client, return the
         converted python objects.
         """
         response = self(*args, **kwargs)
-        if response is None or response.status_code != 200:
+        if response is None:
             return None
         else:
-            return json.loads(response.text)
+            return json.loads(response.read())
 
     def _get_url(self, config, target, path):
         if path.startswith('/'):
@@ -94,9 +84,25 @@ class BridgeRequest(object):
     def _get_current_userid(self):
         return getSecurityManager().getUser().getId()
 
-    def _do_request(self, method, url, headers, data):
-        return requests.request(method.lower(), url, headers=headers,
-                                params=data)
+    def _request(self, target, path, headers, data):
+        config = getUtility(IBridgeConfig)
+        if config.get_client_id() == target:
+            return self._do_traverse(path, headers, data)
+
+        else:
+            url = self._get_url(config, target, path)
+            headers = self._get_headers(config, headers)
+            return self._do_request(url, headers, data)
+
+    def _do_request(self, url, headers, data):
+        handler = urllib2.ProxyHandler({})
+        opener = urllib2.build_opener(handler)
+
+        if data:
+            data = urllib.urlencode(data)
+
+        request = urllib2.Request(url, data, headers)
+        return opener.open(request)
 
     def _do_traverse(self, path, headers, data):
         portal = getSite()
@@ -114,7 +120,8 @@ class BridgeRequest(object):
         ori_form = request.form
         request.form = form_data
 
-        response = Response()
+        response_url = os.path.join(portal.absolute_url(), parsed_path.path)
+        response = None
 
         try:
             response_data = portal.restrictedTraverse(parsed_path.path)()
@@ -122,15 +129,19 @@ class BridgeRequest(object):
         except ConflictError:
             raise
 
-        except Exception as msg:
-            response.status_code = 500
-            response.raw = StringIO(str(msg))
+        except Exception as exc:
+            code = 500
+            msg = str(exc)
+            hdrs = {}
+            fp = StringIO(msg)
+            raise urllib2.HTTPError(response_url, code, msg, hdrs, fp)
 
         else:
-            response.status_code = 200
-            response_data = response_data.replace(
-                PORTAL_URL_PLACEHOLDER, public_url)
-            response.raw = StringIO(response_data)
+            response_data = StringIO(response_data.replace(
+                    PORTAL_URL_PLACEHOLDER, public_url))
+
+            response = urllib.addinfourl(
+                response_data, headers={}, url=response_url, code=200)
 
         finally:
             # restore the request
