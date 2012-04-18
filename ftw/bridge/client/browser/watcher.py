@@ -143,7 +143,11 @@ class AjaxLoadPortletData(BrowserView):
 
     def __call__(self):
         portlet = self._get_portlet()
-        data = self._get_data(portlet)
+        try:
+            data = self._get_data(portlet)
+        except MaintenanceError:
+            return '"MAINTENANCE"'
+
         data = self._localize_dates(data)
         return json.dumps(data)
 

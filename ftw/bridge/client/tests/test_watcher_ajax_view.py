@@ -1,6 +1,7 @@
 from Products.CMFCore.utils import getToolByName
 from StringIO import StringIO
 from ftw.bridge.client.browser import watcher
+from ftw.bridge.client.exceptions import MaintenanceError
 from ftw.bridge.client.interfaces import PORTAL_URL_PLACEHOLDER
 from ftw.bridge.client.portlets.watcher import IWatcherPortlet
 from ftw.bridge.client.testing import EXAMPLE_CONTENT_LAYER
@@ -106,3 +107,35 @@ class TestAjaxLoadPortletDataView(MockTestCase):
                 ])
 
         self.assertEqual(json.loads(view()), expected_feed_data)
+
+    def test_maintenance_error(self):
+        portal = self.layer['portal']
+        request = self.layer['request']
+        folder = self.layer['folder']
+
+        request.form['uid'] = IUUID(folder)
+        feed_view = getMultiAdapter((portal, request), name='watcher-feed')
+        feed_data = feed_view()
+
+        response = Response()
+        response.status_code = 200
+        response.raw = StringIO(feed_data)
+
+        portlet, portlet_hash = self._get_portlet_and_hash()
+
+        def raise_maintenance_error(*args, **kwargs):
+            raise MaintenanceError()
+
+        self.expect(self.requests.request(
+                ANY,
+                'http://bridge/proxy/%s/%s' % (portlet.client_id,
+                                               portlet.path),
+                headers=ANY)).call(raise_maintenance_error)
+
+        self.replay()
+        request.form['hash'] = portlet_hash
+
+        view = queryMultiAdapter((portal, request), name='watcher-load-data')
+        self.assertNotEqual(view, None)
+
+        self.assertEqual(view(), '"MAINTENANCE"')

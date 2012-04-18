@@ -2,10 +2,12 @@ jq(function($) {
 
     var COMMUNICATION_ERROR = 'An error occured.';
     var MORE_TEXT = 'More...';
+    var MAINTENANCE_ERROR = 'The source system is beeing maintained.'
 
     if ($('html').attr('lang') == 'de') {
         COMMUNICATION_ERROR = 'Ein unbekannter Fehler ist aufgetreten.';
         MORE_TEXT = 'Mehr...';
+        MAINTENANCE_ERROR = 'Das Quellsystem wird gerade gewartet.'
     }
 
     $('.portletWatcher.portlet').each(function() {
@@ -27,6 +29,12 @@ jq(function($) {
                     $portlet.find('.portletItem').html(
                         '<div class="error">'.concat(data.error).concat(
                             '</div>'));
+
+                } else if(data === 'MAINTENANCE') {
+                    $portlet.find('.portletItem').html(
+                        '<div class="warn">'.concat(MAINTENANCE_ERROR).concat(
+                            '</div>'));
+
                 } else {
 
                     $portlet.find('.portletItem').remove();
