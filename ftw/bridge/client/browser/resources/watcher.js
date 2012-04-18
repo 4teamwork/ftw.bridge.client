@@ -57,7 +57,7 @@ jq(function($) {
                           '">' + this.title + '</a>'
                          ).appendTo(item);
 
-                        $('<span class="portletItemDetails" />').text(
+                        $('<span class="itemModified" />').text(
                             ' ' + this.modified).appendTo(item);
                     });
 
