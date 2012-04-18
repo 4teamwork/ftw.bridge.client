@@ -35,7 +35,7 @@ class WatchAction(BrowserView):
         requester = getUtility(IBridgeRequest)
         try:
             response = requester('dashboard', '@@add-watcher-portlet',
-                                 params={'path': feed_path},
+                                 data={'path': feed_path},
                                  silent=True)
 
         except MaintenanceError:

@@ -81,7 +81,8 @@ class TestBridgeRequestUtility(MockTestCase):
         self.expect(self.requests.request(
                 ANY,
                 'http://bridge/proxy/target-client/path/to/@@something',
-                headers=ANY)).result(response)
+                headers=ANY,
+                params=None)).result(response)
 
         self.replay()
         utility = getUtility(IBridgeRequest)
@@ -95,7 +96,8 @@ class TestBridgeRequestUtility(MockTestCase):
         self.expect(self.requests.request(
                 ANY,
                 'http://bridge/proxy/target-client/@@something',
-                headers=ANY)).result(response)
+                headers=ANY,
+                params=None)).result(response)
 
         self.replay()
         utility = getUtility(IBridgeRequest)
@@ -109,7 +111,8 @@ class TestBridgeRequestUtility(MockTestCase):
         self.expect(self.requests.request(
                 'get',
                 ANY,
-                headers=ANY)).result(response)
+                headers=ANY,
+                params=None)).result(response)
 
         self.replay()
         utility = getUtility(IBridgeRequest)
@@ -124,7 +127,8 @@ class TestBridgeRequestUtility(MockTestCase):
         self.expect(self.requests.request(
                 'post',
                 ANY,
-                headers=ANY)).result(response)
+                headers=ANY,
+                params=None)).result(response)
 
         self.replay()
         utility = getUtility(IBridgeRequest)
@@ -139,7 +143,8 @@ class TestBridgeRequestUtility(MockTestCase):
                 ANY,
                 ANY,
                 headers={'X-BRIDGE-ORIGIN': 'current-client',
-                         'X-BRIDGE-AC': 'john.doe'})).result(
+                         'X-BRIDGE-AC': 'john.doe'},
+                params=None)).result(
             response)
 
         self.replay()
@@ -156,7 +161,8 @@ class TestBridgeRequestUtility(MockTestCase):
                 ANY,
                 headers={'X-BRIDGE-ORIGIN': 'current-client',
                          'X-BRIDGE-AC': 'john.doe',
-                         'X-CUSTOM-HEADER': 'some data'})).result(
+                         'X-CUSTOM-HEADER': 'some data'},
+                params=None)).result(
             response)
 
         self.replay()
@@ -170,20 +176,20 @@ class TestBridgeRequestUtility(MockTestCase):
             response)
         self.assertEqual(len(headers), 1)
 
-    def test_additional_arguments(self):
+    def test_passed_data(self):
         response = self._create_response()
         self.expect(self.requests.request(
                 ANY,
                 ANY,
                 headers=ANY,
-                cookies={'aCookie': 'peanut butter cookie'})).result(
+                params={'foo': 'bar'})).result(
             response)
 
         self.replay()
         utility = getUtility(IBridgeRequest)
         self.assertEqual(
             utility('target-client', '@@something',
-                    cookies={'aCookie': 'peanut butter cookie'}),
+                    data={'foo': 'bar'}),
             response)
 
     def test_maintenance_response_raises_exception(self):
@@ -192,7 +198,8 @@ class TestBridgeRequestUtility(MockTestCase):
         self.expect(self.requests.request(
                 ANY,
                 ANY,
-                headers=ANY)).result(response)
+                headers=ANY,
+                params=None)).result(response)
 
         self.replay()
         utility = getUtility(IBridgeRequest)
@@ -205,7 +212,8 @@ class TestBridgeRequestUtility(MockTestCase):
         self.expect(self.requests.request(
                 ANY,
                 'http://bridge/proxy/target-client/@@json-view',
-                headers=ANY)).result(response)
+                headers=ANY,
+                params=None)).result(response)
 
         self.replay()
         utility = getUtility(IBridgeRequest)

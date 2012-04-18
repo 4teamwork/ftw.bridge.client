@@ -42,7 +42,8 @@ class IBridgeRequest(Interface):
     """A utility for sending requests to the bridge.
     """
 
-    def __call__(target, path, method='GET', headers=None, **kwargs):
+    def __call__(target, path, method='GET', headers=None, data=None,
+                 silent=False):
         """Make a request to the client ``target`` client through the
         configured bridge.
 
@@ -52,8 +53,9 @@ class IBridgeRequest(Interface):
         the remote client.
         ``method`` -- Request method (defaults to GET).
         ``headers`` -- Dict of additional request headers (optional).
-        **kwargs -- Additional keyword arguments passed to ``requests``
-        package.
+        ``data`` -- Dict of data to pass (optional).
+        ``silent`` -- Return None on connection error instead of raising
+        an exception. The original exception will be added to the error_log.
         """
 
     def get_json(*args, **kwargs):

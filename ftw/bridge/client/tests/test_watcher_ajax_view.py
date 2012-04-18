@@ -78,7 +78,8 @@ class TestAjaxLoadPortletDataView(MockTestCase):
                 ANY,
                 'http://bridge/proxy/%s/%s' % (portlet.client_id,
                                                portlet.path),
-                headers=ANY)).result(response)
+                headers=ANY,
+                params=None)).result(response)
 
         self.replay()
         request.form['hash'] = portlet_hash
@@ -130,7 +131,8 @@ class TestAjaxLoadPortletDataView(MockTestCase):
                 ANY,
                 'http://bridge/proxy/%s/%s' % (portlet.client_id,
                                                portlet.path),
-                headers=ANY)).call(raise_maintenance_error)
+                headers=ANY,
+                params=None)).call(raise_maintenance_error)
 
         self.replay()
         request.form['hash'] = portlet_hash

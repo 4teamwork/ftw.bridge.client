@@ -62,13 +62,13 @@ class RemoteAddFavoriteAction(BrowserView):
             self.request.RESPONSE.redirect(self.context.absolute_url())
 
     def _create_favorite(self, title, url):
-        params = {'title': title,
+        data = {'title': title,
                 'url': url}
 
         requester = getUtility(IBridgeRequest)
         try:
             response = requester('dashboard', '@@add-favorite',
-                                 params=params, silent=True)
+                                 data=data, silent=True)
 
         except MaintenanceError:
             IStatusMessage(self.request).addStatusMessage(

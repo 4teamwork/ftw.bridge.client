@@ -40,21 +40,20 @@ class BridgeRequest(object):
     implements(IBridgeRequest)
 
     def __call__(self, target, path, method='GET', headers=None,
-                 silent=False, **kwargs):
+                 data=None, silent=False):
         """Makes a request to a remote client.
         """
         config = getUtility(IBridgeConfig)
 
         if config.get_client_id() == target:
-            response = self._do_traverse(path, headers, **kwargs)
+            response = self._do_traverse(path, headers, data)
 
         else:
             url = self._get_url(config, target, path)
-            request_args = kwargs.copy()
-            request_args['headers'] = self._get_headers(config, headers)
+            headers = self._get_headers(config, headers)
 
             try:
-                response = self._do_request(method, url, **request_args)
+                response = self._do_request(method, url, headers, data)
             except RequestException:
                 if silent:
                     getSite().error_log.raising(sys.exc_info())
@@ -95,10 +94,11 @@ class BridgeRequest(object):
     def _get_current_userid(self):
         return getSecurityManager().getUser().getId()
 
-    def _do_request(self, method, url, **kwargs):
-        return requests.request(method.lower(), url, **kwargs)
+    def _do_request(self, method, url, headers, data):
+        return requests.request(method.lower(), url, headers=headers,
+                                params=data)
 
-    def _do_traverse(self, path, headers, data=None, **kwargs):
+    def _do_traverse(self, path, headers, data):
         portal = getSite()
         public_url = portal.absolute_url() + '/'
 
