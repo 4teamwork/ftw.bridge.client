@@ -7,7 +7,7 @@
          interface="ftw.bridge.client.portlets.watcher.IWatcherPortlet"
          assignment="ftw.bridge.client.portlets.watcher.Assignment"
          renderer="ftw.bridge.client.portlets.watcher.Renderer"
-         addview="plone.app.portlets.portlets.base.NullAddForm"
+         addview="ftw.bridge.client.portlets.watcher.AddForm"
          />
 
 </configure>

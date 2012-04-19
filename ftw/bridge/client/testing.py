@@ -1,6 +1,8 @@
 from Products.CMFCore.utils import getToolByName
 from ftw.testing.layer import ComponentRegistryLayer
+from plone.app.testing import FunctionalTesting
 from plone.app.testing import IntegrationTesting
+from plone.app.testing import PLONE_FUNCTIONAL_TESTING
 from plone.app.testing import PLONE_INTEGRATION_TESTING
 from plone.app.testing import PloneSandboxLayer
 from plone.app.testing import TEST_USER_ID
@@ -93,6 +95,16 @@ class IntegrationTestingLayer(PloneTestingLayer):
 INTEGRATION_FIXTURE = IntegrationTestingLayer()
 INTEGRATION_TESTING = IntegrationTesting(
     bases=(INTEGRATION_FIXTURE,), name='ftw.bridge.client:Integration')
+
+
+class FunctionTestingLayer(PloneTestingLayer):
+
+    defaultBases = (PLONE_FUNCTIONAL_TESTING, INTEGRATION_FIXTURE)
+
+
+FUNCTIONAL_FIXTURE = FunctionTestingLayer()
+FUNCTIONAL_TESTING = FunctionalTesting(
+    bases=(FUNCTIONAL_FIXTURE,), name='ftw.bridge.client:Functional')
 
 
 class ExampleContentLayer(PloneSandboxLayer):

@@ -6,6 +6,7 @@ from plone.memoize.compress import xhtml_compress
 from plone.portlets.interfaces import IPortletDataProvider
 from zope import schema
 from zope.component import getMultiAdapter
+from zope.formlib import form
 from zope.interface import implements
 
 
@@ -61,3 +62,13 @@ class Renderer(base.Renderer):
 
     def render(self):
         return xhtml_compress(self._template())
+
+
+class AddForm(base.AddForm):
+
+    form_fields = form.Fields(IWatcherPortlet)
+    label = _(u'title_watcher_portlet',
+              default='Recently modified')
+
+    def create(self, data):
+        return Assignment(**data)
