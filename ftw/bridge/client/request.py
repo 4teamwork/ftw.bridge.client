@@ -129,7 +129,10 @@ class BridgeRequest(object):
         except ConflictError:
             raise
 
-        except Exception as exc:
+        except Exception, exc:
+            # restore the request
+            request.form = ori_form
+
             code = 500
             msg = str(exc)
             hdrs = {}
@@ -137,14 +140,13 @@ class BridgeRequest(object):
             raise urllib2.HTTPError(response_url, code, msg, hdrs, fp)
 
         else:
+            # restore the request
+            request.form = ori_form
+
             response_data = StringIO(response_data.replace(
                     PORTAL_URL_PLACEHOLDER, public_url))
 
             response = urllib.addinfourl(
                 response_data, headers={}, url=response_url, code=200)
-
-        finally:
-            # restore the request
-            request.form = ori_form
 
         return response
