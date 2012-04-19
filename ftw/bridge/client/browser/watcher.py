@@ -14,7 +14,6 @@ from plone.app.portlets.storage import UserPortletAssignmentMapping
 from plone.portlets.constants import USER_CATEGORY
 from plone.portlets.interfaces import IPortletManager
 from plone.portlets.utils import unhashPortletInfo
-from plone.uuid.interfaces import IUUID
 from zope.component import getUtility
 import time
 
@@ -29,7 +28,10 @@ class WatchAction(BrowserView):
     """
 
     def __call__(self):
-        uid = IUUID(self.context)
+        uid = self.context.UID
+        if callable(uid):
+            uid = uid()
+
         feed_path = '@@watcher-feed?uid=%s' % uid
 
         requester = getUtility(IBridgeRequest)
