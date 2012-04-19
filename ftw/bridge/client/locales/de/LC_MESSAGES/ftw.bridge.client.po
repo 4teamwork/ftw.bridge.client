@@ -34,12 +34,12 @@ msgstr "Der Favorit konnte nicht erstellt werden."
 #. Default: "${title} was added to your favorites."
 #: ./ftw/bridge/client/browser/favorite.py:87
 msgid "info_favorite_created"
-msgstr "${title} wurde zu ihren Favoriten hinzugefügt."
+msgstr "${title} wurde zu Ihren Favoriten hinzugefügt."
 
 #. Default: "A dashboard portlet was created."
 #: ./ftw/bridge/client/browser/watcher.py:54
 msgid "info_msg_portlet_created"
-msgstr "Ein Portlet wurde auf ihrem Dashboard erstellt."
+msgstr "Ein Portlet wurde auf Ihrem Dashboard erstellt."
 
 #. Default: "Loading ..."
 #: ./ftw/bridge/client/portlets/templates/watcher.pt:18
@@ -65,5 +65,3 @@ msgstr "Titel"
 #: ./ftw/bridge/client/portlets/watcher.py:36
 msgid "title_watcher_portlet"
 msgstr "Letzte Änderungen"
-
-
