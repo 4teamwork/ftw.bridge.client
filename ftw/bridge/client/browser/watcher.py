@@ -216,4 +216,5 @@ class RecentlyModified(BrowserView):
         return catalog(query)
 
     def batch(self, brains):
-        return Batch(brains, 20)
+        b_start = self.request.get('b_start', 0)
+        return Batch(brains, 20, start=int(b_start))
