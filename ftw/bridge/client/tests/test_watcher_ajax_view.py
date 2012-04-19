@@ -113,3 +113,29 @@ class TestAjaxLoadPortletDataView(RequestAwareTestCase):
         self.assertNotEqual(view, None)
 
         self.assertEqual(view(), '"MAINTENANCE"')
+
+    def test_view_does_not_fail_when_no_modified_date_is_passed(self):
+        portal = self.layer['portal']
+        request = self.layer['request']
+        folder = self.layer['folder']
+
+        request.form['uid'] = IUUID(folder)
+        feed_view = getMultiAdapter((portal, request), name='watcher-feed')
+        feed_data = feed_view()
+
+        # modify feed data
+        data = json.loads(feed_data)
+        for item in data['items']:
+            item['modified'] = ''
+        data = json.dumps(data)
+
+        _portlet, portlet_hash = self._get_portlet_and_hash()
+        self._expect_request().result(self._create_response(
+                status_code=200, raw=data))
+
+        self.replay()
+        request.form['hash'] = portlet_hash
+
+        view = queryMultiAdapter((portal, request), name='watcher-load-data')
+        self.assertNotEqual(view, None)
+        self.assertEqual(type(json.loads(view())), dict)

@@ -183,9 +183,10 @@ class AjaxLoadPortletData(BrowserView):
         localize_time = translation.ulocalized_time
 
         for item in data.get('items'):
-            date = datetime(*(time.strptime(
-                        item['modified'], DATETIME_FORMAT)[0:6]))
-            item['modified'] = localize_time(date, long_format=False)
+            if item.get('modified'):
+                date = datetime(*(time.strptime(
+                            item['modified'], DATETIME_FORMAT)[0:6]))
+                item['modified'] = localize_time(date, long_format=False)
 
         return data
 
