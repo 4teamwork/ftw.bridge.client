@@ -114,31 +114,37 @@ class WatcherFeed(BrowserView):
         uid = self.request.get('uid')
         reference_catalog = getToolByName(self.context, 'reference_catalog')
         obj = reference_catalog.lookupObject(uid)
+        data = self.get_data(obj)
+        return json.dumps(data)
 
-        data = {
+    def get_data(self, obj):
+        return {
             'title': obj.Title().decode('utf-8'),
-            'items': list(self.get_item_data(obj)),
+            'items': list(self.get_items(obj)),
             'details_url': '%s/recently_modified_view' % (
                 get_object_url(obj))}
 
-        return json.dumps(data)
+    def get_items(self, obj):
+        brains = self.query_catalog(obj)
+        for brain in brains:
+            yield self.get_item_data(brain)
 
-    def get_item_data(self, obj):
+    def query_catalog(self, obj, limit=WATCHER_PORTLET_LIMIT):
         catalog = getToolByName(self.context, 'portal_catalog')
 
-        brains = catalog(path='/'.join(obj.getPhysicalPath()),
-                         sort_on='modified',
-                         sort_order='reverse',
-                         sort_limit=WATCHER_PORTLET_LIMIT)
+        return catalog(path='/'.join(obj.getPhysicalPath()),
+                       sort_on='modified',
+                       sort_order='reverse',
+                       sort_limit=limit)
 
-        for brain in brains:
-            yield {
-                'title': brain.Title.decode('utf-8'),
-                'url': get_brain_url(brain),
-                'modified': brain.modified.strftime(DATETIME_FORMAT),
-                'portal_type': brain.portal_type,
-                'cssclass': u'',
-                }
+    def get_item_data(self, brain):
+        return {
+            'title': brain.Title.decode('utf-8'),
+            'url': get_brain_url(brain),
+            'modified': brain.modified.strftime(DATETIME_FORMAT),
+            'portal_type': brain.portal_type,
+            'cssclass': u'',
+            }
 
 
 class AjaxLoadPortletData(BrowserView):
