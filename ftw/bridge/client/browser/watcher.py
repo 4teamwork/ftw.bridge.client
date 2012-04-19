@@ -14,10 +14,8 @@ from ftw.bridge.client.utils import json
 from plone.app.portlets.storage import UserPortletAssignmentMapping
 from plone.app.portlets.utils import assignment_from_key
 from plone.portlets.constants import USER_CATEGORY
-from plone.portlets.interfaces import IPortletAssignmentMapping
 from plone.portlets.interfaces import IPortletManager
 from plone.portlets.utils import unhashPortletInfo
-from zope.component import getMultiAdapter
 from zope.component import getUtility
 import time
 
