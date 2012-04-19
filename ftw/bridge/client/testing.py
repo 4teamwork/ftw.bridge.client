@@ -105,7 +105,8 @@ class ExampleContentLayer(PloneSandboxLayer):
         setRoles(portal, TEST_USER_ID, ['Manager'])
         self['folder'] = folder = portal.get(portal.invokeFactory(
                 'Folder', 'feed-folder', title='Feed folder'))
-        folder.invokeFactory('Document', 'page', title='The page')
+        folder.invokeFactory('Document', 'page',
+                             title='The page with uml\xc3\xa4uts')
         setRoles(portal, TEST_USER_ID, ['Member'])
 
     def tearDownPloneSite(self, portal):

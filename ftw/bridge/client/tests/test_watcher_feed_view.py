@@ -40,7 +40,7 @@ class TestWatcherFeedView(TestCase):
                 details_url=u'%sfeed-folder/recently_modified_view' % (
                     PORTAL_URL_PLACEHOLDER),
                 items=[
-                    dict(title=u'The page',
+                    dict(title=u'The page with uml\xe4uts',
                          url=u'%sfeed-folder/page' % PORTAL_URL_PLACEHOLDER,
                          modified=page.modified().strftime(DATETIME_FORMAT),
                          portal_type=u'Document',

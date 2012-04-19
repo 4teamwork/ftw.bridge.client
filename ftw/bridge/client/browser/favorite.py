@@ -86,7 +86,7 @@ class RemoteAddFavoriteAction(BrowserView):
             IStatusMessage(self.request).addStatusMessage(
                 _(u'info_favorite_created',
                   default=u'${title} was added to your favorites.',
-                  mapping={'title': title}),
+                  mapping={'title': title.decode('utf-8')}),
                 type='info')
             return True
 

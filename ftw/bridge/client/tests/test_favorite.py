@@ -95,7 +95,7 @@ class TestRemoteAddFavoriteAction(RequestAwareTestCase):
         bridge_url = 'http://bridge/proxy/dashboard/@@add-favorite'
 
         self._expect_request(url=bridge_url,
-                             data={'title': 'The page',
+                             data={'title': 'The page with uml\xc3\xa4uts',
                                    'url': favorite_url}).result(
             self._create_response(raw='OK'))
 
@@ -114,8 +114,9 @@ class TestRemoteAddFavoriteAction(RequestAwareTestCase):
 
         messages = IStatusMessage(self.request).show()
         self.assertEqual(len(messages), 1)
-        self.assertEqual(messages[0].message,
-                         u'The page was added to your favorites.')
+        self.assertEqual(
+            messages[0].message,
+            u'The page with uml\xe4uts was added to your favorites.')
         self.assertEqual(messages[0].type,
                          'info')
 
