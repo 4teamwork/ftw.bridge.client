@@ -37,7 +37,7 @@ class TestWatcherFeedView(TestCase):
         data = json.loads(result)
         self.assertEqual(data, dict(
                 title=u'Feed folder',
-                details_url=u'%sfeed-folder/recently_modified_view' % (
+                details_url=u'%sfeed-folder/@@watcher-recently-modified' % (
                     PORTAL_URL_PLACEHOLDER),
                 items=[
                     dict(title=u'The page with uml\xe4uts',

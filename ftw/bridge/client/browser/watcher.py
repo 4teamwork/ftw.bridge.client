@@ -1,4 +1,5 @@
 from Products.CMFCore.utils import getToolByName
+from Products.CMFPlone.PloneBatch import Batch
 from Products.Five import BrowserView
 from Products.statusmessages.interfaces import IStatusMessage
 from datetime import datetime
@@ -121,7 +122,7 @@ class WatcherFeed(BrowserView):
         return {
             'title': obj.Title().decode('utf-8'),
             'items': list(self.get_items(obj)),
-            'details_url': '%s/recently_modified_view' % (
+            'details_url': '%s/@@watcher-recently-modified' % (
                 get_object_url(obj))}
 
     def get_items(self, obj):
@@ -187,3 +188,32 @@ class AjaxLoadPortletData(BrowserView):
             item['modified'] = localize_time(date, long_format=False)
 
         return data
+
+
+class RecentlyModified(BrowserView):
+    """A local recently modified view.
+    """
+
+    def __init__(self, *args, **kwargs):
+        super(RecentlyModified, self).__init__(*args, **kwargs)
+        self.batched_results = None
+
+    def __call__(self):
+        self.update()
+        return super(RecentlyModified, self).__call__()
+
+    def update(self):
+        brains = self.query_catalog()
+        self.batched_results = self.batch(brains)
+
+    def query_catalog(self):
+        catalog = getToolByName(self.context, 'portal_catalog')
+        query = {
+            'sort_on': 'modified',
+            'sort_order': 'reverse',
+            'path': '/'.join(self.context.getPhysicalPath())}
+
+        return catalog(query)
+
+    def batch(self, brains):
+        return Batch(brains, 20)

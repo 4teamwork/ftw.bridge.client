@@ -35,6 +35,14 @@
         />
 
     <browser:page
+        name="watcher-recently-modified"
+        for="*"
+        class=".watcher.RecentlyModified"
+        template="recently_modified.pt"
+        permission="zope2.View"
+        />
+
+    <browser:page
         name="add-favorite"
         for="Products.CMFPlone.interfaces.siteroot.IPloneSiteRoot"
         class=".favorite.AddFavorite"
