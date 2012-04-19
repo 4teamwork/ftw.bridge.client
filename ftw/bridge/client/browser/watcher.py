@@ -12,9 +12,12 @@ from ftw.bridge.client.utils import get_brain_url
 from ftw.bridge.client.utils import get_object_url
 from ftw.bridge.client.utils import json
 from plone.app.portlets.storage import UserPortletAssignmentMapping
+from plone.app.portlets.utils import assignment_from_key
 from plone.portlets.constants import USER_CATEGORY
+from plone.portlets.interfaces import IPortletAssignmentMapping
 from plone.portlets.interfaces import IPortletManager
 from plone.portlets.utils import unhashPortletInfo
+from zope.component import getMultiAdapter
 from zope.component import getUtility
 import time
 
@@ -165,14 +168,12 @@ class AjaxLoadPortletData(BrowserView):
 
         info = unhashPortletInfo(portlet_hash)
 
-        column_manager = getUtility(IPortletManager,
-                                    name=info['manager'])
-
-        mtool = getToolByName(self.context, 'portal_membership')
-        userid = mtool.getAuthenticatedMember().getId()
-        column = column_manager.get(USER_CATEGORY, {}).get(userid, {})
-
-        return column.get(info['name'])
+        return assignment_from_key(
+            context=self.context,
+            manager_name=info['manager'],
+            category=info['category'],
+            key=info['key'],
+            name=info['name'])
 
     def _get_data(self, portlet):
         requester = getUtility(IBridgeRequest)
