@@ -11,10 +11,9 @@ from ftw.bridge.client.portlets.watcher import Assignment
 from ftw.bridge.client.utils import get_brain_url
 from ftw.bridge.client.utils import get_object_url
 from ftw.bridge.client.utils import json
-from plone.app.portlets.storage import UserPortletAssignmentMapping
 from plone.app.portlets.utils import assignment_from_key
+from plone.app.portlets.utils import assignment_mapping_from_key
 from plone.portlets.constants import USER_CATEGORY
-from plone.portlets.interfaces import IPortletManager
 from plone.portlets.utils import unhashPortletInfo
 from zope.component import getUtility
 import time
@@ -69,11 +68,16 @@ class WatchAction(BrowserView):
 class  AddWatcherPortlet(BrowserView):
 
     def __call__(self):
-        origin = self.request.get_header('X-BRIDGE-ORIGIN')
-        path = self.request.get('path')
+        mapping = self._get_assignment_mapping()
+        data = self._get_portlet_data()
+        self._add_portlet(mapping, data)
+        return 'OK'
 
-        column_manager_name = 'plone.dashboard1'
-        column_manager = getUtility(IPortletManager, name=column_manager_name)
+    def _get_portlet_data(self):
+        return {'client_id': self.request.get_header('X-BRIDGE-ORIGIN'),
+                'path': self.request.get('path')}
+
+    def _get_assignment_mapping(self):
         membership_tool = getToolByName(self.context, 'portal_membership')
         member = membership_tool.getAuthenticatedMember()
 
@@ -82,20 +86,19 @@ class  AddWatcherPortlet(BrowserView):
                 'Could not find userid.')
 
         userid = member.getId()
-        users_category = column_manager.get(USER_CATEGORY)
-        column = users_category.get(userid, None)
-        if column is None:
-            users_category[userid] = column = UserPortletAssignmentMapping(
-                manager=column_manager_name,
-                category=USER_CATEGORY,
-                name=userid)
 
-        portlet_id = self._generate_portlet_id(column)
+        return assignment_mapping_from_key(
+            context=self.context,
+            manager_name='plone.dashboard1',
+            category=USER_CATEGORY,
+            key=userid,
+            create=True)
 
-        column[portlet_id] = Assignment(client_id=origin, path=path)
-        column[portlet_id].__name__ = portlet_id
-
-        return 'OK'
+    def _add_portlet(self, mapping, data):
+        portlet_id = self._generate_portlet_id(mapping)
+        mapping[portlet_id] = Assignment(**data)
+        mapping[portlet_id].__name__ = portlet_id
+        return mapping[portlet_id]
 
     def _generate_portlet_id(self, column, base='watcher'):
         if base not in column:
