@@ -10,6 +10,31 @@ jq(function($) {
         MAINTENANCE_ERROR = 'Das Quellsystem ist wegen Wartungsarbeiten momentan nicht erreichbar.'
     }
 
+    var generate_item_nodes = function(items, callback) {
+        return $(items).each(function() {
+            var $item = $('<span class="title">');
+
+            if(this.url) {
+                var $link = $('<a>' + this.title + '</a>');
+                $link.attr('class', this.cssclass);
+                $link.attr('href', this.url);
+                this.target && $link.attr('target', this.target);
+                $link.appendTo($item);
+
+            } else {
+                $('<span class="' + this.cssclass + '">' +
+                  this.title + '</span>').appendTo($item);
+            }
+
+            if(this.modified) {
+                $('<span class="itemModified" />').text(
+                    ' ' + this.modified).appendTo($item);
+            }
+
+            callback($item);
+        });
+    };
+
     $('.portletWatcher.portlet').each(function() {
 
         var $portlet = $(this);
@@ -42,24 +67,27 @@ jq(function($) {
                     $portlet.find('.portletHeader .portlet-title').text(
                         data.title);
 
-                    var odd = true;
-                    $(data.items).each(function() {
-                        var cssclass = 'portletItem '.concat(
-                            odd ? 'odd' : 'even');
-                        odd = !odd;
+                    if (data.mode === 'ul') {
+                        var $list = $('<ul>')
+                          .appendTo($('<dd class="portletItem">')
+                                    .appendTo($portlet));
 
-                        var item = $('<span class="title">').appendTo(
-                            $('<dd class="' + cssclass + '" />').appendTo(
-                                $portlet));
+                        generate_item_nodes(data.items, function(node) {
+                            node.appendTo($('<li>').appendTo($list));
+                        });
 
-                        $('<a class="' + this.cssclass + '" ' +
-                          'href="' + this.url +
-                          '">' + this.title + '</a>'
-                         ).appendTo(item);
 
-                        $('<span class="itemModified" />').text(
-                            ' ' + this.modified).appendTo(item);
-                    });
+                    } else {
+                        var odd = true;
+                        generate_item_nodes(data.items, function(node) {
+                            var cssclass = 'portletItem '.concat(
+                                odd ? 'odd' : 'even');
+                            odd = !odd;
+                            node.appendTo(
+                                $('<dd class="' + cssclass + '" />')
+                                  .appendTo($portlet));
+                        });
+                    }
 
                     if(typeof(data.details_url) != 'undefined') {
                         $('<dd class="portletFooter" />')
