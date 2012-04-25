@@ -63,3 +63,36 @@ class IBridgeRequest(Interface):
 
         The arguments are the same as for the __call__ method.
         """
+
+
+class IBrainSerializer(Interface):
+    """A tool for serializing and deserializing a set of brains, so that
+    it can be transported to another client.
+    The deserialized brains are represented with ``IBrainRepresentation``
+    objects providing the original metadata. Those representation objects
+    cannot retrieve the object (since the object is on another client).
+    """
+
+    def serialize_brains(results):
+        """Serialize a list of brains into a jsonizable list.
+        """
+
+    def deserialize_brains(data):
+        """Deserialize the previously serialized data to
+        ``IBrainRepresentation`` objects.
+        """
+
+
+class IBrainRepresentation(Interface):
+    """Represents a catalog brain which was transported over the bridge.
+    It contains all known remote metadata and some important methods.
+    """
+
+    def __init__(data):
+        """Creates a brain representation instance by passing in a dict
+        created previously be the ``brain_to_data`` method.
+        """
+
+    def getURL():
+        """Returns the full public url to the object on the remote client.
+        """

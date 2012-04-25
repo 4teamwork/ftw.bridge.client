@@ -20,6 +20,10 @@
         factory="ftw.bridge.client.request.BridgeRequest"
         />
 
+    <utility
+        factory="ftw.bridge.client.brain.BrainSerializer"
+        />
+
     <five:registerClass
         class=".plugin.BridgePlugin"
         meta_type="BridgePASPlugin"
