@@ -64,6 +64,18 @@ class IBridgeRequest(Interface):
         The arguments are the same as for the __call__ method.
         """
 
+    def search_catalog(target, query, limit=50):
+        """Search the remote catalog and return a list of
+        ``IBrainRepresentation`` objects.
+
+        Arguments:
+        ``target`` -- Target client id as configured on the bridge.
+        ``query`` -- A jsonizable dict with the catalog query.
+        ``limit`` -- Limits the remote result to this number of brains for
+        avoiding huge responses. If necessary this can be changed. Defaults
+        to 50.
+        """
+
 
 class IBrainSerializer(Interface):
     """A tool for serializing and deserializing a set of brains, so that

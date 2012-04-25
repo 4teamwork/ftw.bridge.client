@@ -2,6 +2,7 @@ from AccessControl import getSecurityManager
 from StringIO import StringIO
 from ZODB.POSException import ConflictError
 from ftw.bridge.client.exceptions import MaintenanceError
+from ftw.bridge.client.interfaces import IBrainSerializer
 from ftw.bridge.client.interfaces import IBridgeConfig
 from ftw.bridge.client.interfaces import IBridgeRequest
 from ftw.bridge.client.interfaces import PORTAL_URL_PLACEHOLDER
@@ -65,6 +66,15 @@ class BridgeRequest(object):
             return None
         else:
             return json.loads(response.read())
+
+    def search_catalog(self, target, query, limit=50):
+        path = '@@bridge-search-catalog'
+        data = {'query': json.dumps(query),
+                'limit': limit}
+        response = self.get_json(target, path, data=data)
+
+        serializer = getUtility(IBrainSerializer)
+        return serializer.deserialize_brains(response)
 
     def _get_url(self, config, target, path):
         if path.startswith('/'):

@@ -7,6 +7,13 @@
         directory="resources" />
 
     <browser:page
+        name="bridge-search-catalog"
+        for="Products.CMFPlone.interfaces.siteroot.IPloneSiteRoot"
+        class=".catalog.BridgeSearchCatalog"
+        permission="zope2.View"
+        />
+
+    <browser:page
         name="watch"
         for="*"
         class=".watcher.WatchAction"

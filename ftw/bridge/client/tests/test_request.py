@@ -2,6 +2,7 @@ from AccessControl import SecurityManagement
 from AccessControl.users import SimpleUser
 from ZODB.POSException import ConflictError
 from ftw.bridge.client.exceptions import MaintenanceError
+from ftw.bridge.client.interfaces import IBrainRepresentation
 from ftw.bridge.client.interfaces import IBridgeRequest
 from ftw.bridge.client.interfaces import PORTAL_URL_PLACEHOLDER
 from ftw.bridge.client.request import replace_placeholder_in_data
@@ -13,6 +14,7 @@ from zope.app.component.hooks import setSite
 from zope.component import getGlobalSiteManager
 from zope.component import queryUtility, getUtility
 from zope.interface.verify import verifyClass
+import json
 import urllib2
 
 
@@ -155,6 +157,32 @@ class TestBridgeRequestUtility(RequestAwareTestCase):
         self.assertEqual(
             utility.get_json('target-client', '@@json-view'),
             [{'foo': 'bar'}])
+
+    def test_search_catalog(self):
+        response_data = [
+            {'Title': 'Foo',
+             '_url': 'https://target-client/foo',
+             'portal_type': 'Folder'}]
+        query = {'portal_type': ['Folder']}
+
+        response = self._create_response(raw=json.dumps(response_data))
+        url = 'http://bridge/proxy/foo/@@bridge-search-catalog'
+
+        self._expect_request(
+            url=url,
+            data={'query': json.dumps(query),
+                  'limit': 50}).result(response)
+
+        self.replay()
+        utility = getUtility(IBridgeRequest)
+        results = utility.search_catalog('foo', query)
+
+        self.assertEqual(len(results), 1)
+        brain = results[0]
+        self.assertTrue(IBrainRepresentation.providedBy(brain))
+        self.assertEqual(brain.getURL(), 'https://target-client/foo')
+        self.assertEqual(brain.portal_type, 'Folder')
+        self.assertEqual(brain.Title, 'Foo')
 
     def test_get_json_error(self):
         self._expect_request().throw(
