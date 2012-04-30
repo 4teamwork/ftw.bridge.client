@@ -13,7 +13,7 @@
     <include package=".browser" />
     <include package=".portlets" />
 
-    <configure zcml:condition="installed ftw.tabbedview">
+    <configure zcml:condition="have ftw.tabbedview3">
         <include package=".tabbed" />
     </configure>
 
