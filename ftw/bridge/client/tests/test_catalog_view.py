@@ -45,6 +45,35 @@ class TestBridgeSearchCatalogView(TestCase):
         self.assertEqual(page_data['Title'], u'The page with uml\xe4uts')
         self.assertEqual(page_data['id'], u'page')
 
+    def test_count_unbatched_length(self):
+        query = {'path': '/'.join(self.folder.getPhysicalPath()),
+                 'sort_on': 'effective',
+                 'sort_order': 'reverse',
+                 'sort_limit': 1}
+
+        view = getMultiAdapter((self.portal, self.request),
+                               name='bridge-search-catalog')
+
+        self.assertEqual(view._count_unbatched_length(query), 2)
+
+    def test_response_contains_unbatched_length(self):
+        self.request.form['query'] = json.dumps({
+                'path': '/'.join(self.folder.getPhysicalPath()),
+                'sort_on': 'effective',
+                'sort_order': 'reverse',
+                'sort_limit': 1})
+        self.request.form['limit'] = 1
+
+        view = getMultiAdapter((self.portal, self.request),
+                               name='bridge-search-catalog')
+
+        raw_data = view()
+        data = json.loads(raw_data)
+        self.assertEqual(len(data), 1)
+        self.assertEqual(
+            self.request.RESPONSE.getHeader('X-total_results_length'),
+            '2')
+
 
 class TestCatalogRequest(TestCase):
 
@@ -70,7 +99,24 @@ class TestCatalogRequest(TestCase):
         self.assertEqual(page.Title, 'The page with uml\xc3\xa4uts')
 
         self.assertEqual(folder.getURL(), 'http://nohost/plone/feed-folder')
-        self.assertEqual(page.getURL(), 'http://nohost/plone/feed-folder/page')
+        self.assertEqual(page.getURL(),
+                         'http://nohost/plone/feed-folder/page')
 
         self.assertEqual(folder.portal_type, 'Folder')
         self.assertEqual(page.portal_type, 'Document')
+
+    def test_batched_results_with_respons_headers(self):
+        query = {
+            'path': '/'.join(self.folder.getPhysicalPath()),
+            'sort_on': 'sortable_title',
+            'sort_order': 'reverse',
+            'sort_limit': 1}
+
+        utility = getUtility(IBridgeRequest)
+        results = utility.search_catalog('current-client', query)
+
+        self.assertEqual(len(results), 1)
+        folder = results[0]
+
+        self.assertTrue(IBrainRepresentation.providedBy(folder))
+        self.assertEqual(folder.Title, 'Feed folder')

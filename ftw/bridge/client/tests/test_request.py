@@ -1,6 +1,7 @@
 from AccessControl import SecurityManagement
 from AccessControl.users import SimpleUser
 from ZODB.POSException import ConflictError
+from ftw.bridge.client.brain import BrainResultSet
 from ftw.bridge.client.exceptions import MaintenanceError
 from ftw.bridge.client.interfaces import IBrainRepresentation
 from ftw.bridge.client.interfaces import IBridgeRequest
@@ -166,17 +167,20 @@ class TestBridgeRequestUtility(RequestAwareTestCase):
         query = {'portal_type': ['Folder']}
 
         response = self._create_response(raw=json.dumps(response_data))
+        response.headers = {'X-total_results_length': '1'}
         url = 'http://bridge/proxy/foo/@@bridge-search-catalog'
 
         self._expect_request(
             url=url,
-            data={'query': json.dumps(query),
+            data={'query': json.dumps({'portal_type': ['Folder'],
+                                       'batching_start': 0}),
                   'limit': 50}).result(response)
 
         self.replay()
         utility = getUtility(IBridgeRequest)
         results = utility.search_catalog('foo', query)
 
+        self.assertEqual(type(results), BrainResultSet)
         self.assertEqual(len(results), 1)
         brain = results[0]
         self.assertTrue(IBrainRepresentation.providedBy(brain))
@@ -208,7 +212,9 @@ class TestBridgeRequestUtility(RequestAwareTestCase):
         self.expect(site.absolute_url()).result('http://nohost/plone')
 
         request = self.create_dummy(
-            form={'ori': 'formdata'})
+            form={'ori': 'formdata'},
+            RESPONSE=self.create_dummy(
+                headers={}))
         self.expect(site.REQUEST).result(request)
 
         assertion_data = self.create_dummy()

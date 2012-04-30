@@ -32,7 +32,11 @@ class TestTableSource(RequestAwareTestCase):
         self.expect(config.bridge_remote_client_id).result('other-client')
         self.expect(config.bridge_remove_path).result(False)
         self.expect(config.batching_pagesize).result(50)
-        request = self.create_dummy()
+        self.expect(config.pagesize).result(50)
+        self.expect(config.batching_current_page).result(1)
+        request = self.create_dummy(
+            RESPONSE=self.create_dummy(
+                headers={}))
 
         response_data = [
             {'Title': 'Foo',
@@ -49,7 +53,8 @@ class TestTableSource(RequestAwareTestCase):
 
         self._expect_request(
             url=url,
-            data={'query': json.dumps(query),
+            data={'query': json.dumps({'portal_type': ['Folder'],
+                                       'batching_start': 0}),
                   'limit': 50}).result(response)
 
         self.replay()
@@ -77,6 +82,8 @@ class TestTableSource(RequestAwareTestCase):
         self.expect(config.bridge_remote_client_id).result('other-client')
         self.expect(config.bridge_remove_path).result(True)
         self.expect(config.batching_pagesize).result(50)
+        self.expect(config.pagesize).result(50)
+        self.expect(config.batching_current_page).result(1)
         request = self.create_dummy()
 
         query = {'portal_type': ['Folder'],
@@ -87,7 +94,8 @@ class TestTableSource(RequestAwareTestCase):
 
         self._expect_request(
             url=url,
-            data={'query': json.dumps({'portal_type': ['Folder']}),
+            data={'query': json.dumps({'portal_type': ['Folder'],
+                                       'batching_start': 0}),
                   'limit': 50}).result(response)
 
         self.replay()

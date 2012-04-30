@@ -2,13 +2,16 @@
     xmlns="http://namespaces.zope.org/zope">
 
     <include package="Products.Five" file="meta.zcml" />
+    <include package="Products.Five.viewlet" file="meta.zcml" />
     <include package="Products.PluggableAuthService" file="meta.zcml" />
     <include package="Products.GenericSetup" file="meta.zcml" />
     <include package="plone.app.portlets" file="meta.zcml" />
+    <include package="z3c.autoinclude" file="meta.zcml" />
 
     <include package="AccessControl" file="permissions.zcml" />
     <include package="plone.app.portlets" file="permissions.zcml" />
 
+    <include package="ftw.tabbedview" />
     <include package="ftw.bridge.client" />
 
 </configure>

@@ -1,5 +1,6 @@
 from Products.CMFCore.utils import getToolByName
 from Products.Five import BrowserView
+from copy import deepcopy
 from ftw.bridge.client.interfaces import IBrainSerializer
 from ftw.bridge.client.utils import json
 from zope.component import getUtility
@@ -8,15 +9,41 @@ from zope.component import getUtility
 class BridgeSearchCatalog(BrowserView):
 
     def __call__(self):
-        brains = self._query_catalog()
-        serializer = getUtility(IBrainSerializer)
-        return json.dumps(serializer.serialize_brains(brains))
-
-    def _query_catalog(self):
         query = json.loads(self.request.get('query'))
         limit = int(self.request.get('limit'))
+        brains = self._query_catalog(query, limit)
+
+        total_length = self._count_unbatched_length(query)
+        self.request.RESPONSE.setHeader(
+            'X-total_results_length', str(total_length))
+
+        return self._serialize_results(brains)
+
+    def _query_catalog(self, query, limit):
+        catalog = getToolByName(self.context, 'portal_catalog')
+
+        if 'batching_start' in query:
+            batching_start = int(query['batching_start'])
+            del query['batching_start']
+        else:
+            batching_start = 0
+
+        brains = catalog(query)
+        batching_stop = batching_start + limit
+
+        return brains[batching_start : batching_stop]
+
+    def _serialize_results(self, results):
+        serializer = getUtility(IBrainSerializer)
+        return json.dumps(serializer.serialize_brains(results))
+
+    def _count_unbatched_length(self, query):
+        query = deepcopy(query)
+
+        for key in ('sort_on', 'sort_order', 'sort_limit'):
+            if key in query:
+                del query[key]
 
         catalog = getToolByName(self.context, 'portal_catalog')
         brains = catalog(query)
-
-        return brains[:limit]
+        return len(brains)

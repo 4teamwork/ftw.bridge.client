@@ -1,5 +1,6 @@
 from Products.CMFCore.utils import getToolByName
 from ftw.bridge.client.brain import BrainRepresentation
+from ftw.bridge.client.brain import BrainResultSet
 from ftw.bridge.client.brain import BrainSerializer
 from ftw.bridge.client.interfaces import IBrainRepresentation
 from ftw.bridge.client.interfaces import IBrainSerializer
@@ -74,9 +75,12 @@ class TestBrainSerializer(TestCase):
         serializer = BrainSerializer()
         data = json.dumps(serializer.serialize_brains(brains))
 
-        results = serializer.deserialize_brains(json.loads(data))
+        results = serializer.deserialize_brains(
+            json.loads(data), total_length=13)
 
+        self.assertEqual(type(results), BrainResultSet)
         self.assertEqual(len(results), 2)
+        self.assertEqual(results.get_total_length(), 13)
         folder, page = results
 
         self.assertTrue(IBrainRepresentation.providedBy(folder))
@@ -92,6 +96,15 @@ class TestBrainSerializer(TestCase):
 
         self.assertEqual(folder.portal_type, 'Folder')
         self.assertEqual(page.portal_type, 'Document')
+
+
+class TestBrainResultSet(TestCase):
+
+    def test_result_set(self):
+        data = BrainResultSet(['foo', 'bar'], total_length=15)
+        self.assertEqual(data[0], 'foo')
+        self.assertEqual(data[1], 'bar')
+        self.assertEqual(data.get_total_length(), 15)
 
 
 class TestBrainRepresentation(TestCase):

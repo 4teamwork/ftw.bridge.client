@@ -22,10 +22,28 @@ class BridgeCatalogTableSource(CatalogTableSource):
         query = self._remove_path_from_query(query)
 
         requester = getUtility(IBridgeRequest)
-        return requester.search_catalog(
-            self.config.bridge_remote_client_id,
-            query,
-            limit=self.config.batching_pagesize)
+        client_id = self.config.bridge_remote_client_id
+        pagesize = self.config.batching_pagesize
+        current_page = self.config.batching_current_page
+
+        results = requester.search_catalog(
+            client_id, query, limit=pagesize,
+            batching_start=((current_page - 1) * pagesize))
+
+        return self._batch_results(results)
+
+    def _batch_results(self, results):
+        total_length = results.get_total_length()
+        pagesize = self.config.pagesize
+        page = self.config.batching_current_page - 1
+
+        just_left = page * pagesize
+        just_right = total_length - len(results) - just_left
+
+        data = ([None] * just_left) + \
+            results + \
+            ([None] * just_right)
+        return data
 
     def _remove_path_from_query(self, query):
         if self.config.bridge_remove_path and 'path' in query:
@@ -41,3 +59,6 @@ class BridgeCatalogListingView(CatalogListingView):
 
     bridge_remote_client_id = None
     bridge_remove_path = True
+
+    def custom_sort(self, results, sort_on, sort_reverse):
+        return results

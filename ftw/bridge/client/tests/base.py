@@ -15,12 +15,14 @@ class RequestAwareTestCase(MockTestCase):
         self.expect(self.urllib2.build_opener(ARGS, KWARGS)).count(0)
         self.expect(self.urllib2.Request(ARGS, KWARGS)).count(0)
 
-    def _create_response(self, status_code=200, raw='response data'):
+    def _create_response(self, status_code=200, raw='response data',
+                         total_length=None):
         data = StringIO(raw)
         response = self.create_dummy(
             code=status_code,
             fp=data,
-            read=data.read)
+            read=data.read,
+            headers={})
         return response
 
     def _expect_request(self, url=ANY, headers=ANY, data=None):

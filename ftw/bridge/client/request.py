@@ -67,14 +67,19 @@ class BridgeRequest(object):
         else:
             return json.loads(response.read())
 
-    def search_catalog(self, target, query, limit=50):
+    def search_catalog(self, target, query, limit=50, batching_start=0):
         path = '@@bridge-search-catalog'
+        query['batching_start'] = batching_start
         data = {'query': json.dumps(query),
                 'limit': limit}
-        response = self.get_json(target, path, data=data)
+
+        response = self(target, path, data=data)
+        data = json.loads(response.read())
+        total_length = int(response.headers.get(
+                'X-total_results_length', '0'))
 
         serializer = getUtility(IBrainSerializer)
-        return serializer.deserialize_brains(response)
+        return serializer.deserialize_brains(data, total_length)
 
     def _get_url(self, config, target, path):
         if path.startswith('/'):
@@ -128,6 +133,8 @@ class BridgeRequest(object):
         # we need to back up the request data and set them new for the
         # view which is called with the same request (restrictedTraverse)
         ori_form = request.form
+        ori_response_headers = request.RESPONSE.headers
+        request.RESPONSE.headers = {}
         request.form = form_data
 
         response_url = os.path.join(portal.absolute_url(), parsed_path.path)
@@ -142,6 +149,7 @@ class BridgeRequest(object):
         except Exception, exc:
             # restore the request
             request.form = ori_form
+            request.RESPONSE.headers = ori_response_headers
 
             code = 500
             msg = str(exc)
@@ -151,12 +159,15 @@ class BridgeRequest(object):
 
         else:
             # restore the request
+            response_headers = request.RESPONSE.headers
             request.form = ori_form
+            request.RESPONSE.headers = ori_response_headers
 
             response_data = StringIO(response_data.replace(
                     PORTAL_URL_PLACEHOLDER, public_url))
 
             response = urllib.addinfourl(
-                response_data, headers={}, url=response_url, code=200)
+                response_data, headers=response_headers,
+                url=response_url, code=200)
 
         return response

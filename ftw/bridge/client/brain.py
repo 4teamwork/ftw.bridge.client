@@ -16,7 +16,7 @@ class BrainSerializer(object):
             data.append(self._serialize_brain(brain))
         return data
 
-    def deserialize_brains(self, data):
+    def deserialize_brains(self, data, total_length=None):
         if not isinstance(data, list):
             raise ValueError('data should be a list, got %s' % type(data))
 
@@ -25,7 +25,7 @@ class BrainSerializer(object):
             brain_data = self._decode_data(brain_data)
             results.append(BrainRepresentation(brain_data))
 
-        return results
+        return BrainResultSet(results, total_length)
 
     def _serialize_brain(self, brain):
         data = {self._encode('_url'): self._encode(get_brain_url(brain))}
@@ -75,6 +75,16 @@ class BrainSerializer(object):
     def _get_metadata_names(self, brain):
         catalog = getToolByName(brain, 'portal_catalog')
         return catalog._catalog.names
+
+
+class BrainResultSet(list):
+
+    def __init__(self, data, total_length):
+        super(BrainResultSet, self).__init__(data)
+        self._total_length = total_length
+
+    def get_total_length(self):
+        return self._total_length
 
 
 class BrainRepresentation(object):
