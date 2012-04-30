@@ -5,12 +5,18 @@
     xmlns:genericsetup="http://namespaces.zope.org/genericsetup"
     xmlns:i18n="http://namespaces.zope.org/i18n"
     xmlns:pas="http://namespaces.zope.org/pluggableauthservice"
+    xmlns:zcml="http://namespaces.zope.org/zcml"
     i18n_domain="ftw.bridge.client">
 
     <i18n:registerTranslations directory="locales" />
 
     <include package=".browser" />
     <include package=".portlets" />
+
+    <configure zcml:condition="installed ftw.tabbedview">
+        <include package=".tabbed" />
+    </configure>
+
 
     <utility
         factory="ftw.bridge.client.config.BridgeConfig"

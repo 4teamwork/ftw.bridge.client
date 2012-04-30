@@ -7,10 +7,12 @@ maintainer = 'Jonas Baumann'
 tests_require = [
     'plone.app.testing',
     'ftw.testing',
+    'ftw.tabbedview',
     ]
 
 extras_require = {
-    'tests': tests_require}
+    'tests': tests_require,
+    'tabbedview': ['ftw.tabbedview']}
 
 setup(name='ftw.bridge.client',
       version=version,
