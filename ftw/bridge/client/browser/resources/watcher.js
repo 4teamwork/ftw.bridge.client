@@ -2,12 +2,14 @@ jq(function($) {
 
     var COMMUNICATION_ERROR = 'An error occured.';
     var MORE_TEXT = 'More...';
-    var MAINTENANCE_ERROR = 'The source system is beeing maintained.'
+    var MAINTENANCE_ERROR = 'The source system is beeing maintained.';
+    var NO_RESULTS = 'No results.';
 
     if ($('html').attr('lang') == 'de') {
         COMMUNICATION_ERROR = 'Ein unbekannter Fehler ist aufgetreten.';
         MORE_TEXT = 'Mehr...';
-        MAINTENANCE_ERROR = 'Das Quellsystem ist wegen Wartungsarbeiten momentan nicht erreichbar.'
+        MAINTENANCE_ERROR = 'Das Quellsystem ist wegen Wartungsarbeiten momentan nicht erreichbar.';
+        NO_RESULTS = 'Keine Treffer';
     }
 
     var generate_item_nodes = function(items, callback) {
@@ -67,7 +69,12 @@ jq(function($) {
                     $portlet.find('.portletHeader .portlet-title').text(
                         data.title);
 
-                    if (data.mode === 'ul') {
+                    if (typeof(data.items) == 'undefined' || data.items.length === 0) {
+
+                        $('<dd class="portletItem" />').text(NO_RESULTS).appendTo($portlet);
+
+                    } else if (data.mode === 'ul') {
+
                         var $list = $('<ul>')
                           .appendTo($('<dd class="portletItem">')
                                     .appendTo($portlet));
