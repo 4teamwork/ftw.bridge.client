@@ -27,7 +27,7 @@ class TestAddBridgePlugin(MockTestCase):
     def test_addview_adds_plugin(self):
         context = self.mocker.mock()
         adding = self.providing_stub(IAdding)
-        request = self.stub_request()
+        request = self.stub_request(stub_response=False)
 
         self.expect(request.form).result({
                 'form.button.Add': 'Add',
