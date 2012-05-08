@@ -31,7 +31,7 @@ class BridgeSearchCatalog(BrowserView):
         brains = catalog(query)
         batching_stop = batching_start + limit
 
-        return brains[batching_start : batching_stop]
+        return brains[batching_start: batching_stop]
 
     def _serialize_results(self, results):
         serializer = getUtility(IBrainSerializer)
