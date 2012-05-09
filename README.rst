@@ -4,7 +4,7 @@ Introduction
 The ``ftw.bridge`` tools are used for communication between several Plone
 instances.
 It is also possible to cummuncate with other web services.
-Requests between web services are proxied through the ``ftw.bridge.proxy``_.
+Requests between web services are proxied through the `ftw.bridge.proxy`_.
 This makes it possible to move or reconfigure certain dependent webservices
 (clients) only by reconfiguring the proxy.
 The clients do not know where other target clients are located - they only
@@ -20,7 +20,7 @@ It provides tools and utilities for communication and authentication.
 
 - **Authentication**: A PAS plugin authenticates requests and logs the user
   in on the target client without transmitting his password. Only requests
-  from the configured ``ftw.bridge.proxy``_ are authenticated.
+  from the configured `ftw.bridge.proxy`_ are authenticated.
 
 - **Requests**: The ``IBridgeRequest`` utility is used for making requesting
   other clients. It is also able to make remote catalog queries and
@@ -45,7 +45,7 @@ It provides tools and utilities for communication and authentication.
 Installation and configuration
 ------------------------------
 
-- A installation of ``ftw.bridge.proxy``_ is required.
+- A installation of `ftw.bridge.proxy`_ is required.
 
 - Add ``ftw.bridge.client`` to your eggs in the buildout configuration::
 
@@ -53,7 +53,7 @@ Installation and configuration
     eggs +=
         ftw.bridge.client
 
-- Configure the ``ftw.bridge.proxy``_ data as environment variables::
+- Configure the `ftw.bridge.proxy`_ data as environment variables::
 
     [instance]
     environment-vars +=
@@ -70,9 +70,9 @@ Configuration Options
 
 The configuration options are set using environment variables:
 
-- ``bridge_url``: The url to the "/proxy" view of ``ftw.bridge.proxy``_.
+- ``bridge_url``: The url to the "/proxy" view of `ftw.bridge.proxy`_.
 - ``bridge_ips``: A comma seperated list of trusted IPs of the
-  ``ftw.bridge.proxy``_ installation.
+  `ftw.bridge.proxy`_ installation.
 - ``bridge_client_id``: The id of this client as configured in the ``.ini``
   file on ``ftw.bridge.proxy``.
 
