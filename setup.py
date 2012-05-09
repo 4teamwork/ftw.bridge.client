@@ -14,6 +14,7 @@ extras_require = {
     'tests': tests_require,
     'tabbedview': ['ftw.tabbedview']}
 
+
 setup(name='ftw.bridge.client',
       version=version,
       description='Adds ftw.bridge support to plone.',
