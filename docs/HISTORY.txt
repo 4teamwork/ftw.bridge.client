@@ -5,7 +5,9 @@ Changelog
 1.0.3 (unreleased)
 ------------------
 
-- Nothing changed yet.
+- Tabbedview integration: disable custom sorting since we have
+  a lazy result.
+  [jone]
 
 
 1.0.2 (2012-05-09)

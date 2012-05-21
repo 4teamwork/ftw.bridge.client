@@ -60,5 +60,8 @@ class BridgeCatalogListingView(CatalogListingView):
     bridge_remote_client_id = None
     bridge_remove_path = True
 
+    # Disable custom sort indexes since we have a lazy result.
+    custom_sort_indexes = {}
+
     def custom_sort(self, results, sort_on, sort_reverse):
         return results
