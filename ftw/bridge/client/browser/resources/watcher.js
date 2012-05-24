@@ -14,7 +14,7 @@ jq(function($) {
 
     var generate_item_nodes = function(items, callback) {
         return $(items).each(function() {
-            var $item = $('<span class="title">');
+            var $item = $('<span class="title"></span>');
 
             if(this.url) {
                 var $link = $('<a>' + this.title + '</a>');
