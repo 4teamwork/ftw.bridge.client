@@ -6,6 +6,7 @@ from ftw.bridge.client.exceptions import MaintenanceError
 from ftw.bridge.client.interfaces import IBridgeRequest
 from ftw.bridge.client.interfaces import MAINTENANCE_ERROR_MESSAGE
 from ftw.bridge.client.interfaces import PORTAL_URL_PLACEHOLDER
+from zope.component import getMultiAdapter
 from zope.component import getUtility
 
 
@@ -59,7 +60,9 @@ class RemoteAddFavoriteAction(BrowserView):
         if referer:
             self.request.RESPONSE.redirect(referer)
         else:
-            self.request.RESPONSE.redirect(self.context.absolute_url())
+            state = getMultiAdapter((self.context, self.request),
+                                    name='plone_context_state')
+            self.request.RESPONSE.redirect(state.view_url())
 
     def _create_favorite(self, title, url):
         data = {'title': title,
@@ -91,6 +94,9 @@ class RemoteAddFavoriteAction(BrowserView):
             return True
 
     def _get_url(self):
+        state = getMultiAdapter((self.context, self.request),
+                                name='plone_context_state')
+
         portal_url = getToolByName(self.context, 'portal_url')() + '/'
-        relative_path = self.context.absolute_url()[len(portal_url):]
+        relative_path = state.view_url()[len(portal_url):]
         return ''.join((PORTAL_URL_PLACEHOLDER, relative_path))

@@ -112,3 +112,19 @@ class TestWatchActionView(RequestAwareTestCase):
         self.assertEqual(len(messages), 1)
         self.assertEqual(messages[0].message,
                          u'The dashboard portlet could not be created.')
+
+    def test_redirect_to_file_view(self):
+        # absolute_url would download the file, therefore we need to redirect
+        # to the view - but we do that only for typesUseViewActionInListings
+        context = self.layer['file']
+        request = self.layer['request']
+
+        self._expect_request().throw(
+            urllib2.URLError('Connection failed'))
+
+        self.replay()
+
+        view = getMultiAdapter((context, request), name='watch')
+        view()
+        self.assertEqual(request.response.headers.get('location'),
+                         context.absolute_url() + '/view')

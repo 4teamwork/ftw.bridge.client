@@ -85,6 +85,9 @@ class TestRemoteAddFavoriteAction(RequestAwareTestCase):
             del self.request.environ['HTTP_REFERER']
         SecurityManagement.noSecurityManager()
 
+        if 'location' in self.request.response.headers:
+            del self.request.response.headers['location']
+
     def test_component_is_registered(self):
         self.replay()
         getMultiAdapter((self.page, self.request),
@@ -218,3 +221,40 @@ class TestRemoteAddFavoriteAction(RequestAwareTestCase):
                          u'The favorite could not be created.')
         self.assertEqual(messages[0].type,
                          'error')
+
+    def test_redirect_to_file_view(self):
+        # absolute_url would download the file, therefore we need to redirect
+        # to the view - but we do that only for typesUseViewActionInListings
+        self._expect_request().throw(
+            urllib2.URLError('Connection failed'))
+
+        self.replay()
+
+        if 'HTTP_REFERER' in self.request.environ:
+            del self.request.environ['HTTP_REFERER']
+
+        context = self.portal.get('file')
+        view = getMultiAdapter((context, self.request),
+                               name='remote-add-favorite')
+        view()
+        self.assertEqual(self.request.response.headers.get('location'),
+                         context.absolute_url() + '/view')
+
+    def test_file_url_has_view_in_favoritte(self):
+        # absolute_url would download the file, therefore we need to set the
+        # favorite to point to the view - but we do that only for
+        # typesUseViewActionInListings.
+
+        favorite_url = '%sfile/view' % PORTAL_URL_PLACEHOLDER
+        bridge_url = 'http://bridge/proxy/dashboard/@@add-favorite'
+
+        self._expect_request(url=bridge_url,
+                             data={'title': 'the file',
+                                   'url': favorite_url}).result(
+            self._create_response(raw='OK'))
+
+        self.replay()
+        context = self.portal.get('file')
+        view = getMultiAdapter((context, self.request),
+                               name='remote-add-favorite')
+        view()

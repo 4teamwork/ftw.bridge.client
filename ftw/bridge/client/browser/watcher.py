@@ -15,6 +15,7 @@ from plone.app.portlets.utils import assignment_from_key
 from plone.app.portlets.utils import assignment_mapping_from_key
 from plone.portlets.constants import USER_CATEGORY
 from plone.portlets.utils import unhashPortletInfo
+from zope.component import getMultiAdapter
 from zope.component import getUtility
 import time
 
@@ -61,8 +62,11 @@ class WatchAction(BrowserView):
         referer = self.request.environ.get('HTTP_REFERER')
         if referer:
             self.request.RESPONSE.redirect(referer)
+
         else:
-            self.request.RESPONSE.redirect(self.context.absolute_url())
+            state = getMultiAdapter((self.context, self.request),
+                                    name='plone_context_state')
+            self.request.RESPONSE.redirect(state.view_url())
 
 
 class  AddWatcherPortlet(BrowserView):

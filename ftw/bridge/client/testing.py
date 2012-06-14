@@ -1,4 +1,5 @@
 from Products.CMFCore.utils import getToolByName
+from StringIO import StringIO
 from ftw.testing.layer import ComponentRegistryLayer
 from plone.app.testing import FunctionalTesting
 from plone.app.testing import IntegrationTesting
@@ -119,6 +120,12 @@ class ExampleContentLayer(PloneSandboxLayer):
                 'Folder', 'feed-folder', title='Feed folder'))
         folder.invokeFactory('Document', 'page',
                              title='The page with uml\xc3\xa4uts')
+
+        filedata = StringIO('foo bar')
+        self['file'] = portal.get(
+            portal.invokeFactory('File', 'file', file=filedata,
+                                 title='the file'))
+
         setRoles(portal, TEST_USER_ID, ['Member'])
 
     def tearDownPloneSite(self, portal):
