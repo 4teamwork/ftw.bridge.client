@@ -181,9 +181,9 @@ class TestPasPlugin(MockTestCase):
         request = self.create_dummy(environ={
                 'REMOTE_ADDR': '127.0.0.1',
                 'HTTP_X_FORWARDED_FOR': '192.168.1.1'})
-        self.assertEqual(plugin._get_request_ip(request), '192.168.1.1')
+        self.assertEqual(plugin._get_request_ip(request), '127.0.0.1')
 
         request = self.create_dummy(environ={
                 'REMOTE_ADDR': '127.0.0.1',
                 'HTTP_X_FORWARDED_FOR': ' 192.168.1.1 , 10.10.10.10'})
-        self.assertEqual(plugin._get_request_ip(request), '192.168.1.1')
+        self.assertEqual(plugin._get_request_ip(request), '127.0.0.1')

@@ -103,8 +103,8 @@ class BridgePlugin(BasePlugin, Cacheable):
         request initally.
         """
         ips = request.environ.get(
-            'HTTP_X_FORWARDED_FOR',
-            request.environ.get('REMOTE_ADDR'))
+            'REMOTE_ADDR',
+            request.environ.get('HTTP_X_FORWARDED_FOR'))
 
         if ips is None or not hasattr(ips, 'split'):
             return ips
