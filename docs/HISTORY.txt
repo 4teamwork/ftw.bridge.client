@@ -2,7 +2,7 @@ Changelog
 =========
 
 
-1.0.6 (unreleased)
+1.0.6 (2012-06-26)
 ------------------
 
 - Fix proxy support: validate last proxy IP.
