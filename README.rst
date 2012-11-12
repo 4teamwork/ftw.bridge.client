@@ -3,7 +3,7 @@ Introduction
 
 The ``ftw.bridge`` tools are used for communication between several Plone
 instances.
-It is also possible to cummuncate with other web services.
+It is also possible to communicate with other web services.
 Requests between web services are proxied through the `ftw.bridge.proxy`_.
 This makes it possible to move or reconfigure certain dependent webservices
 (clients) only by reconfiguring the proxy.
