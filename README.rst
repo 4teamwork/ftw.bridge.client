@@ -80,10 +80,10 @@ The configuration options are set using environment variables:
 Links
 -----
 
-- Github project repository: https://github.com/4teamwork/ftw.bridge.proxy
-- Issue tracker: https://github.com/4teamwork/ftw.bridge.proxy/issues
-- Package on pypi: http://pypi.python.org/pypi/ftw.bridge.proxy
-- Continuous integration: https://jenkins.4teamwork.ch/search?q=ftw.bridge.proxy
+- Github project repository: https://github.com/4teamwork/ftw.bridge.client
+- Issue tracker: https://github.com/4teamwork/ftw.bridge.client/issues
+- Package on pypi: http://pypi.python.org/pypi/ftw.bridge.client
+- Continuous integration: https://jenkins.4teamwork.ch/search?q=ftw.bridge.client
 
 
 Copyright
