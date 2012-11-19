@@ -5,14 +5,26 @@ version = '1.0.7.dev0'
 maintainer = 'Jonas Baumann'
 
 tests_require = [
+    'unittest2',
+    'mocker',
+    'plone.testing',
+    'plone.mocktestcase',
     'plone.app.testing',
     'ftw.testing',
-    'ftw.tabbedview',
+
+    'transaction',
+    'zope.browser',
+    'plone.uuid',
+    'z3c.autoinclude',  # TODO: eliminate autoinclude in tests
     ]
 
 extras_require = {
     'tests': tests_require,
-    'tabbedview': ['ftw.tabbedview']}
+    'tabbedview': [
+        'ftw.tabbedview',
+        'ftw.table']}
+
+tests_require += extras_require['tabbedview']
 
 
 setup(name='ftw.bridge.client',
@@ -45,8 +57,31 @@ setup(name='ftw.bridge.client',
 
       install_requires=[
           'setuptools',
+
+          # Zope
+          'AccessControl',
+          'Acquisition',
+          'Missing',
+          'zope.component',
+          'zope.app.component',
+          'zope.formlib',
+          'zope.i18nmessageid',
+          'zope.interface',
+          'zope.publisher',
+          'zope.schema',
+          'Zope2',
+
+          # Plone
+          'Products.statusmessages',
+          'plone.memoize',
+          'plone.portlets',
+          'plone.app.portlets',
+          'Products.GenericSetup',
           'Products.PluggableAuthService',
+          'Products.CMFCore',
+          'Products.CMFPlone',
       ],
+
       tests_require=tests_require,
       extras_require=extras_require,
 
