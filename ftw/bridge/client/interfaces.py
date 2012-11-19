@@ -11,8 +11,7 @@ PORTAL_URL_PLACEHOLDER = '***portal_url***'
 
 MAINTENANCE_ERROR_MESSAGE = _(
     u'error_msg_maintenance',
-    default=u'The target service is currently in ' + \
-        u'maintenace. Try again later.')
+    default=u'The target service is currently in maintenace. Try again later.')
 
 
 class IBridgeConfig(Interface):
