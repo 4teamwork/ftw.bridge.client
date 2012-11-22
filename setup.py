@@ -39,6 +39,7 @@ setup(name='ftw.bridge.client',
       classifiers=[
         'Framework :: Plone',
         'Framework :: Plone :: 4.1',
+        'Framework :: Plone :: 4.2',
         'License :: OSI Approved :: GNU General Public License (GPL)',
         'Programming Language :: Python',
         ],
