@@ -12,6 +12,13 @@ communicate with the proxy directly, which forwards the requests to the
 target client.
 
 
+.. figure:: http://onegov.ch/approved.png/image
+   :align: right
+   :target: http://onegov.ch/community/zertifizierte-module/ftw.bridge
+
+   Certified: 01/2013
+
+
 Features
 --------
 
