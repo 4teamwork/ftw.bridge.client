@@ -74,7 +74,7 @@ class TestAjaxLoadPortletDataView(RequestAwareTestCase):
         view = queryMultiAdapter((portal, request), name='watcher-load-data')
         self.assertNotEqual(view, None)
 
-        dt_format = folder.portal_properties.site_properties.localTimeFormat
+        dt_format = '%b %d, %Y'
 
         expected_feed_data = dict(
             title=u'Feed folder',
