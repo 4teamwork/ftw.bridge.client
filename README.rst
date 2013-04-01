@@ -84,6 +84,12 @@ The configuration options are set using environment variables:
   file on ``ftw.bridge.proxy``.
 
 
+Compatibility
+-------------
+
+Runs with `Plone <http://www.plone.org/>`_ `4.1`, `4.2` or `4.3`.
+
+
 Links
 -----
 
