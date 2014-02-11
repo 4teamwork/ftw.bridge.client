@@ -1,4 +1,4 @@
-jq(function($) {
+$(function() {
 
     var COMMUNICATION_ERROR = 'An error occured.';
     var MORE_TEXT = 'More...';
@@ -41,7 +41,7 @@ jq(function($) {
 
         var $portlet = $(this);
 
-        var wrapper = jq(this).parents(':first[id^=portletwrapper-]');
+        var wrapper = $(this).parents(':first[id^=portletwrapper-]');
         var hash = wrapper[0].id.substr('portletwrapper-'.length);
         var url = portal_url.concat('/@@watcher-load-data').concat(
             '?hash=').concat(hash);
