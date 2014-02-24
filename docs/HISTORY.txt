@@ -5,6 +5,10 @@ Changelog
 1.0.8 (unreleased)
 ------------------
 
+- Fix "sort_order" bug in catalog query view.
+  The problem is that the catalog does not support unicode strings.
+  [jone]
+
 - Fix watcher.js (replace jq with $).
   [mathias.leimgruber]
 

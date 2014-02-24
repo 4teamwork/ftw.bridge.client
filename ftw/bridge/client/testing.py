@@ -1,5 +1,8 @@
 from Products.CMFCore.utils import getToolByName
 from StringIO import StringIO
+from ftw.builder.testing import BUILDER_LAYER
+from ftw.builder.testing import functional_session_factory
+from ftw.builder.testing import set_builder_session_factory
 from ftw.testing.layer import ComponentRegistryLayer
 from plone.app.testing import FunctionalTesting
 from plone.app.testing import IntegrationTesting
@@ -75,7 +78,8 @@ PLONE_TESTING_LAYER = PloneTestingLayer()
 
 class IntegrationTestingLayer(PloneTestingLayer):
 
-    defaultBases = (PLONE_INTEGRATION_TESTING,)
+    defaultBases = (PLONE_INTEGRATION_TESTING,
+                    BUILDER_LAYER)
 
     def setUpZope(self, app, configurationContext):
         # Load ZCML
@@ -105,7 +109,9 @@ class FunctionTestingLayer(PloneTestingLayer):
 
 FUNCTIONAL_FIXTURE = FunctionTestingLayer()
 FUNCTIONAL_TESTING = FunctionalTesting(
-    bases=(FUNCTIONAL_FIXTURE,), name='ftw.bridge.client:Functional')
+    bases=(FUNCTIONAL_FIXTURE,
+           set_builder_session_factory(functional_session_factory)),
+    name='ftw.bridge.client:Functional')
 
 
 class ExampleContentLayer(PloneSandboxLayer):
