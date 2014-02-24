@@ -21,3 +21,15 @@ def get_brain_url(brain):
     """
     portal_url = getToolByName(brain, 'portal_url')() + '/'
     return brain.getURL().replace(portal_url, PORTAL_URL_PLACEHOLDER)
+
+
+def to_utf8_recursively(data):
+    if isinstance(data, unicode):
+        return data.encode('utf-8')
+    elif isinstance(data, list):
+        return map(to_utf8_recursively, data)
+    elif isinstance(data, dict):
+        return dict(map(lambda item: map(to_utf8_recursively, item),
+                        data.items()))
+    else:
+        return data

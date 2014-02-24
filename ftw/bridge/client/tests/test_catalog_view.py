@@ -1,6 +1,12 @@
 from ftw.bridge.client.interfaces import IBrainRepresentation
 from ftw.bridge.client.interfaces import IBridgeRequest
 from ftw.bridge.client.testing import EXAMPLE_CONTENT_LAYER
+from ftw.builder import Builder
+from ftw.builder import create
+from plone.app.testing import TEST_USER_ID
+from plone.app.testing import TEST_USER_NAME
+from plone.app.testing import login
+from plone.app.testing import setRoles
 from unittest2 import TestCase
 from zope.component import getMultiAdapter
 from zope.component import getUtility
@@ -109,7 +115,6 @@ class TestCatalogRequest(TestCase):
         query = {
             'path': '/'.join(self.folder.getPhysicalPath()),
             'sort_on': 'sortable_title',
-            'sort_order': 'reverse',
             'sort_limit': 1}
 
         utility = getUtility(IBridgeRequest)
@@ -120,3 +125,17 @@ class TestCatalogRequest(TestCase):
 
         self.assertTrue(IBrainRepresentation.providedBy(folder))
         self.assertEqual(folder.Title, 'Feed folder')
+
+    def test_reverse_sorting(self):
+        setRoles(self.layer['portal'], TEST_USER_ID, ['Manager'])
+        foo = create(Builder('folder').titled('Foo'))
+        create(Builder('folder').titled('Bar').within(foo))
+
+        query = {'path': '/'.join(foo.getPhysicalPath()),
+                 'sort_on': 'sortable_title',
+                 'sort_order': 'reverse'}
+        utility = getUtility(IBridgeRequest)
+        results = utility.search_catalog('current-client', query)
+        titles = map(lambda brain: brain.Title, results)
+
+        self.assertEquals(['Foo', 'Bar'], titles)

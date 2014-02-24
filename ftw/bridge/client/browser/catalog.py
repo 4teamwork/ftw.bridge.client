@@ -3,13 +3,14 @@ from Products.Five import BrowserView
 from copy import deepcopy
 from ftw.bridge.client.interfaces import IBrainSerializer
 from ftw.bridge.client.utils import json
+from ftw.bridge.client.utils import to_utf8_recursively
 from zope.component import getUtility
 
 
 class BridgeSearchCatalog(BrowserView):
 
     def __call__(self):
-        query = json.loads(self.request.get('query'))
+        query = to_utf8_recursively(json.loads(self.request.get('query')))
         limit = int(self.request.get('limit'))
         brains = self._query_catalog(query, limit)
 
