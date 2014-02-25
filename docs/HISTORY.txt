@@ -5,6 +5,11 @@ Changelog
 1.0.8 (unreleased)
 ------------------
 
+- Drop support for older ftw.tabbedview versions.
+  Requires ftw.tabbedview>=3.2.3.
+  This fixes a ZCML autoinclude load order issue.
+  [jone]
+
 - Fix "sort_order" bug in catalog query view.
   The problem is that the catalog does not support unicode strings.
   [jone]

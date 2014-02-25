@@ -22,7 +22,7 @@ tests_require = [
 extras_require = {
     'tests': tests_require,
     'tabbedview': [
-        'ftw.tabbedview',
+        'ftw.tabbedview>=3.2.3',
         'ftw.table']}
 
 tests_require += extras_require['tabbedview']
