@@ -2,7 +2,7 @@ Changelog
 =========
 
 
-1.0.8 (unreleased)
+1.0.8 (2014-02-28)
 ------------------
 
 - Drop support for older ftw.tabbedview versions.
