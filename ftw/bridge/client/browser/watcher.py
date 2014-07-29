@@ -1,7 +1,3 @@
-from Products.CMFCore.utils import getToolByName
-from Products.CMFPlone.PloneBatch import Batch
-from Products.Five import BrowserView
-from Products.statusmessages.interfaces import IStatusMessage
 from datetime import datetime
 from ftw.bridge.client import _
 from ftw.bridge.client.exceptions import MaintenanceError
@@ -11,10 +7,15 @@ from ftw.bridge.client.portlets.watcher import Assignment
 from ftw.bridge.client.utils import get_brain_url
 from ftw.bridge.client.utils import get_object_url
 from ftw.bridge.client.utils import json
+from ftw.bridge.client.utils import to_utf8_recursively
 from plone.app.portlets.utils import assignment_from_key
 from plone.app.portlets.utils import assignment_mapping_from_key
 from plone.portlets.constants import USER_CATEGORY
 from plone.portlets.utils import unhashPortletInfo
+from Products.CMFCore.utils import getToolByName
+from Products.CMFPlone.PloneBatch import Batch
+from Products.Five import BrowserView
+from Products.statusmessages.interfaces import IStatusMessage
 from zope.component import getMultiAdapter
 from zope.component import getUtility
 import time
@@ -148,7 +149,7 @@ class WatcherFeed(BrowserView):
 
     def get_item_data(self, brain):
         return {
-            'title': brain.Title.decode('utf-8'),
+            'title': to_utf8_recursively(brain.Title),
             'url': get_brain_url(brain),
             'modified': brain.modified.strftime(DATETIME_FORMAT),
             'portal_type': brain.portal_type,
