@@ -46,5 +46,5 @@ class BridgeSearchCatalog(BrowserView):
                 del query[key]
 
         catalog = getToolByName(self.context, 'portal_catalog')
-        brains = catalog(query)
+        brains = catalog(**query)
         return len(brains)

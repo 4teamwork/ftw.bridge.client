@@ -5,6 +5,9 @@ Changelog
 1.0.9 (unreleased)
 ------------------
 
+- ftw.solr compatibility for remote catalog queries.
+  [jone]
+
 - Watcher portlet: fix encoding problem when having discussion items.
   [jone]
 
