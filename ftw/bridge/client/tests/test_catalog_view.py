@@ -4,8 +4,6 @@ from ftw.bridge.client.testing import EXAMPLE_CONTENT_LAYER
 from ftw.builder import Builder
 from ftw.builder import create
 from plone.app.testing import TEST_USER_ID
-from plone.app.testing import TEST_USER_NAME
-from plone.app.testing import login
 from plone.app.testing import setRoles
 from unittest2 import TestCase
 from zope.component import getMultiAdapter

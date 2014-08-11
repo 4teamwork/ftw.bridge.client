@@ -70,7 +70,7 @@ class WatchAction(BrowserView):
             self.request.RESPONSE.redirect(state.view_url())
 
 
-class  AddWatcherPortlet(BrowserView):
+class AddWatcherPortlet(BrowserView):
 
     def __call__(self):
         mapping = self._get_assignment_mapping()
