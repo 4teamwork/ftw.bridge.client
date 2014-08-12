@@ -5,7 +5,14 @@ Changelog
 1.0.9 (unreleased)
 ------------------
 
-- ftw.solr compatibility for remote catalog queries.
+- ftw.solr compatibility hacks
+
+  - copy queries as workaround for
+    https://github.com/4teamwork/ftw.solr/issues/41
+
+  - remove path when it is "/" as workaround for
+    https://github.com/4teamwork/ftw.solr/issues/42
+
   [jone]
 
 - Watcher portlet: fix encoding problem when having discussion items.
