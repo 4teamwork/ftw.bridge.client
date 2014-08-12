@@ -1,10 +1,14 @@
-from Products.CMFCore.utils import getToolByName
 from ftw.bridge.client.brain import BrainRepresentation
 from ftw.bridge.client.brain import BrainResultSet
 from ftw.bridge.client.brain import BrainSerializer
 from ftw.bridge.client.interfaces import IBrainRepresentation
 from ftw.bridge.client.interfaces import IBrainSerializer
-from ftw.bridge.client.testing import EXAMPLE_CONTENT_LAYER
+from ftw.bridge.client.testing import INTEGRATION_TESTING
+from ftw.builder import Builder
+from ftw.builder import create
+from plone.app.testing import setRoles
+from plone.app.testing import TEST_USER_ID
+from Products.CMFCore.utils import getToolByName
 from unittest2 import TestCase
 from zope.component import queryUtility
 from zope.interface.verify import verifyClass
@@ -13,14 +17,18 @@ import json
 
 class TestBrainSerializer(TestCase):
 
-    layer = EXAMPLE_CONTENT_LAYER
+    layer = INTEGRATION_TESTING
 
     def setUp(self):
-        self.folder = self.layer['folder']
+        self.portal = self.layer['portal']
+        setRoles(self.portal, TEST_USER_ID, ['Contributor'])
+        self.folder = create(Builder('folder').titled('Feed folder'))
+        create(Builder('page').titled(u'The page with uml\xe4uts')
+               .within(self.folder))
 
     def test_utility_is_registered(self):
         component = queryUtility(IBrainSerializer)
-        self.assertNotEqual(component, None)
+        self.assertNotEqual(None, component)
 
     def test_component_implements_interface(self):
         self.assertTrue(IBrainSerializer.implementedBy(
@@ -28,49 +36,52 @@ class TestBrainSerializer(TestCase):
         verifyClass(IBrainSerializer, BrainSerializer)
 
     def test_serialize_brains(self):
-        catalog = getToolByName(self.folder, 'portal_catalog')
+        catalog = getToolByName(self.portal, 'portal_catalog')
         results = catalog(path='/'.join(self.folder.getPhysicalPath()),
                           sort_on='path')
 
-        self.assertEqual(len(results), 2)
+        self.assertEqual(2, len(results))
         folder, page = results
-        self.assertEquals(folder.portal_type, 'Folder')
-        self.assertEquals(page.portal_type, 'Document')
+        self.assertEquals('Folder', folder.portal_type)
+        self.assertEquals('Document', page.portal_type)
 
         serializer = BrainSerializer()
         data = serializer.serialize_brains(results)
-        self.assertEqual(type(data), list)
-        self.assertEqual(len(data), 2)
+        self.assertEqual(list, type(data))
+        self.assertEqual(2, len(data))
 
         folder_data, page_data = data
 
-        self.assertEqual(folder_data['_url'], u'***portal_url***feed-folder')
-        self.assertEqual(folder_data['Title'], u'Feed folder')
-        self.assertEqual(folder_data['id'], u'feed-folder')
+        self.assertEqual(u'***portal_url***feed-folder',
+                         folder_data['_url'])
+        self.assertEqual(u'Feed folder', folder_data['Title'])
+        self.assertEqual(u'feed-folder', folder_data['id'])
 
-        self.assertEqual(page_data['_url'],
-                         u'***portal_url***feed-folder/page')
-        self.assertEqual(page_data['Title'], u'The page with uml\xe4uts')
-        self.assertEqual(page_data['id'], u'page')
+        self.assertEqual(
+            u'***portal_url***feed-folder/the-page-with-umlauts',
+            page_data['_url'])
+        self.assertEqual(u'The page with uml\xe4uts',
+                         page_data['Title'])
+        self.assertEqual(u'the-page-with-umlauts', page_data['id'])
 
     def test_serialized_data_is_jsonizable(self):
-        catalog = getToolByName(self.folder, 'portal_catalog')
+        catalog = getToolByName(self.portal, 'portal_catalog')
         results = catalog(path='/'.join(self.folder.getPhysicalPath()),
                           sort_on='path')
 
-        self.assertEqual(len(results), 2)
+        self.assertEqual(2, len(results))
 
         serializer = BrainSerializer()
         data = serializer.serialize_brains(results)
 
-        self.assertEqual(json.loads(json.dumps(data)), data)
+        self.assertEqual(data, json.loads(json.dumps(data)))
 
     def test_deserializing(self):
         catalog = getToolByName(self.folder, 'portal_catalog')
         brains = catalog(path='/'.join(self.folder.getPhysicalPath()),
                           sort_on='path')
 
-        self.assertEqual(len(brains), 2)
+        self.assertEqual(2, len(brains))
 
         serializer = BrainSerializer()
         data = json.dumps(serializer.serialize_brains(brains))
@@ -78,24 +89,27 @@ class TestBrainSerializer(TestCase):
         results = serializer.deserialize_brains(
             json.loads(data), total_length=13)
 
-        self.assertEqual(type(results), BrainResultSet)
-        self.assertEqual(len(results), 2)
-        self.assertEqual(results.get_total_length(), 13)
+        self.assertEqual(BrainResultSet, type(results))
+        self.assertEqual(2, len(results))
+        self.assertEqual(13, results.get_total_length())
         folder, page = results
 
         self.assertTrue(IBrainRepresentation.providedBy(folder))
         self.assertTrue(IBrainRepresentation.providedBy(page))
 
-        self.assertEqual(folder.Title, 'Feed folder')
-        self.assertEqual(page.Title, 'The page with uml\xc3\xa4uts')
+        self.assertEqual('Feed folder', folder.Title)
+        self.assertEqual('The page with uml\xc3\xa4uts', page.Title)
 
         # The url would be replaced by the bridge proxy, but here we
         # deserialize it directly.
-        self.assertEqual(folder.getURL(), '***portal_url***feed-folder')
-        self.assertEqual(page.getURL(), '***portal_url***feed-folder/page')
+        self.assertEqual('***portal_url***feed-folder',
+                         folder.getURL())
+        self.assertEqual(
+            '***portal_url***feed-folder/the-page-with-umlauts',
+            page.getURL())
 
-        self.assertEqual(folder.portal_type, 'Folder')
-        self.assertEqual(page.portal_type, 'Document')
+        self.assertEqual('Folder', folder.portal_type)
+        self.assertEqual('Document', page.portal_type)
 
 
 class TestBrainResultSet(TestCase):
@@ -108,11 +122,6 @@ class TestBrainResultSet(TestCase):
 
 
 class TestBrainRepresentation(TestCase):
-
-    layer = EXAMPLE_CONTENT_LAYER
-
-    def setUp(self):
-        self.context = self.layer['folder']
 
     def test_component_implements_interface(self):
         self.assertTrue(IBrainRepresentation.implementedBy(

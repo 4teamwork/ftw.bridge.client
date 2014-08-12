@@ -1,8 +1,9 @@
 from DateTime import DateTime
-from Products.CMFCore.utils import getToolByName
 from ftw.bridge.client.interfaces import IBrainRepresentation
 from ftw.bridge.client.interfaces import IBrainSerializer
 from ftw.bridge.client.utils import get_brain_url
+from Products.CMFCore.utils import getToolByName
+from zope.component.hooks import getSite
 from zope.interface import implements
 import Missing
 
@@ -73,7 +74,7 @@ class BrainSerializer(object):
         return new_data
 
     def _get_metadata_names(self, brain):
-        catalog = getToolByName(brain, 'portal_catalog')
+        catalog = getToolByName(getSite(), 'portal_catalog')
         return catalog._catalog.names
 
 

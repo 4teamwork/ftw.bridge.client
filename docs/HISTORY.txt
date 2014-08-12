@@ -13,6 +13,9 @@ Changelog
   - remove path when it is "/" as workaround for
     https://github.com/4teamwork/ftw.solr/issues/42
 
+  - do not assume that brains are acquisition wrapped,
+    solr flairs are not.
+
   [jone]
 
 - Watcher portlet: fix encoding problem when having discussion items.

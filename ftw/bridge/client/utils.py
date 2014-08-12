@@ -1,5 +1,6 @@
-from Products.CMFCore.utils import getToolByName
 from ftw.bridge.client.interfaces import PORTAL_URL_PLACEHOLDER
+from Products.CMFCore.utils import getToolByName
+from zope.component.hooks import getSite
 
 try:
     import json
@@ -19,7 +20,7 @@ def get_brain_url(brain):
     """Returns the brain to this object using, replacing the site url with a
     placeholder replaced with the public URL by the bridge.
     """
-    portal_url = getToolByName(brain, 'portal_url')() + '/'
+    portal_url = getToolByName(getSite(), 'portal_url')() + '/'
     return brain.getURL().replace(portal_url, PORTAL_URL_PLACEHOLDER)
 
 
