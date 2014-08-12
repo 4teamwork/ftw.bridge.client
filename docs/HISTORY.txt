@@ -16,6 +16,8 @@ Changelog
   - do not assume that brains are acquisition wrapped,
     solr flairs are not.
 
+  - capture DateTime syntax error when Solr dates are broken.
+
   [jone]
 
 - Watcher portlet: fix encoding problem when having discussion items.
