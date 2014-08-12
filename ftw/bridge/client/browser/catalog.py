@@ -11,6 +11,12 @@ class BridgeSearchCatalog(BrowserView):
 
     def __call__(self):
         query = to_utf8_recursively(json.loads(self.request.get('query')))
+
+        # ftw.solr hack https://github.com/4teamwork/ftw.solr/issues/42
+        if query.get('path') == '/' or (
+            isinstance(query.get('path'), dict) and query['path'].get('query') == '/'):
+            del query['path']
+
         limit = int(self.request.get('limit'))
         brains = self._query_catalog(query, limit)
 
@@ -29,6 +35,9 @@ class BridgeSearchCatalog(BrowserView):
         else:
             batching_start = 0
 
+        # ftw.solr may destroy our query
+        # https://github.com/4teamwork/ftw.solr/issues/41
+        query = deepcopy(query)
         brains = catalog(query)
         batching_stop = batching_start + limit
 
@@ -41,10 +50,14 @@ class BridgeSearchCatalog(BrowserView):
     def _count_unbatched_length(self, query):
         query = deepcopy(query)
 
-        for key in ('sort_on', 'sort_order', 'sort_limit'):
+        for key in ('sort_on', 'sort_order', 'sort_limit', 'batching_start'):
             if key in query:
                 del query[key]
 
         catalog = getToolByName(self.context, 'portal_catalog')
+
+        # ftw.solr may destroy our query
+        # https://github.com/4teamwork/ftw.solr/issues/41
+        query = deepcopy(query)
         brains = catalog(**query)
         return len(brains)
