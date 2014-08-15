@@ -5,6 +5,9 @@ Changelog
 1.0.9 (unreleased)
 ------------------
 
+- Use ftw.profilehook instead of custom import steps (setuphandlers).
+  [jone]
+
 - ftw.solr compatibility hacks
 
   - copy queries as workaround for

@@ -6,12 +6,12 @@ from ftw.bridge.client.plugin import BridgePlugin
 PLUGIN_ID = 'ftw-bridge'
 
 
-def setup_bridge_pas_plugin(setup):
-    if setup.readDataFile(
-        'ftw.bridge.client-setup-bridge-pas-plugin.txt') is None:
-        return
+def installed(site):
+    install_pas_plugin(site)
 
-    acl_users = getToolByName(setup.getSite(), 'acl_users')
+
+def install_pas_plugin(site):
+    acl_users = getToolByName(site, 'acl_users')
 
     if PLUGIN_ID in acl_users.objectIds():
         return
