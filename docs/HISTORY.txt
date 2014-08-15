@@ -5,6 +5,9 @@ Changelog
 1.0.9 (unreleased)
 ------------------
 
+- Implement uninstall profile.
+  [jone]
+
 - Use ftw.profilehook instead of custom import steps (setuphandlers).
   [jone]
 

@@ -12,6 +12,7 @@
     <include package="ftw.profilehook" />
 
     <i18n:registerTranslations directory="locales" />
+    <five:registerPackage package="." initialize=".initialize" />
 
     <include package=".browser" />
     <include package=".portlets" />
@@ -62,6 +63,20 @@
     <profilehook:hook
         profile="ftw.bridge.client:default"
         handler=".hooks.installed"
+        />
+
+    <genericsetup:registerProfile
+        name="uninstall"
+        title="ftw.bridge.client:uninstall"
+        description=""
+        directory="profiles/uninstall"
+        provides="Products.GenericSetup.interfaces.EXTENSION"
+        for="Products.CMFPlone.interfaces.IMigratingPloneSiteRoot"
+        />
+
+    <profilehook:hook
+        profile="ftw.bridge.client:uninstall"
+        handler=".hooks.uninstalled"
         />
 
 </configure>
