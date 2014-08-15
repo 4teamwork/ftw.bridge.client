@@ -2,21 +2,19 @@ from setuptools import setup, find_packages
 import os
 
 version = '1.0.9.dev0'
-maintainer = 'Jonas Baumann'
 
 tests_require = [
-    'unittest2',
-    'mocker',
-    'plone.testing',
-    'plone.mocktestcase',
-    'plone.app.testing',
-    'ftw.testing',
     'ftw.builder',
-
-    'transaction',
-    'zope.browser',
+    'ftw.testing',
+    'mocker',
+    'plone.app.testing',
+    'plone.mocktestcase',
+    'plone.testing',
     'plone.uuid',
+    'transaction',
+    'unittest2',
     'z3c.autoinclude',  # TODO: eliminate autoinclude in tests
+    'zope.browser',
     ]
 
 extras_require = {
@@ -47,9 +45,8 @@ setup(name='ftw.bridge.client',
         ],
 
       keywords='ftw bridge proxy client',
-      author='4teamwork GmbH',
+      author='4teamwork AG',
       author_email='mailto:info@4teamwork.ch',
-      maintainer=maintainer,
       url='https://github.com/4teamwork/ftw.bridge.client',
       license='GPL2',
 
@@ -59,30 +56,26 @@ setup(name='ftw.bridge.client',
       zip_safe=False,
 
       install_requires=[
-          'setuptools',
-
-          # Zope
           'AccessControl',
           'Acquisition',
           'Missing',
-          'zope.component',
+          'Products.CMFCore',
+          'Products.CMFPlone',
+          'Products.GenericSetup',
+          'Products.PluggableAuthService',
+          'Products.statusmessages',
+          'Zope2',
+          'plone.app.portlets',
+          'plone.memoize',
+          'plone.portlets',
+          'setuptools',
           'zope.app.component',
+          'zope.component',
           'zope.formlib',
           'zope.i18nmessageid',
           'zope.interface',
           'zope.publisher',
           'zope.schema',
-          'Zope2',
-
-          # Plone
-          'Products.statusmessages',
-          'plone.memoize',
-          'plone.portlets',
-          'plone.app.portlets',
-          'Products.GenericSetup',
-          'Products.PluggableAuthService',
-          'Products.CMFCore',
-          'Products.CMFPlone',
       ],
 
       tests_require=tests_require,
