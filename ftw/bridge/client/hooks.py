@@ -6,12 +6,16 @@ from ftw.bridge.client.plugin import BridgePlugin
 PLUGIN_ID = 'ftw-bridge'
 
 
-def setup_bridge_pas_plugin(setup):
-    if setup.readDataFile(
-        'ftw.bridge.client-setup-bridge-pas-plugin.txt') is None:
-        return
+def installed(site):
+    install_pas_plugin(site)
 
-    acl_users = getToolByName(setup.getSite(), 'acl_users')
+
+def uninstalled(site):
+    remove_pas_plugin(site)
+
+
+def install_pas_plugin(site):
+    acl_users = getToolByName(site, 'acl_users')
 
     if PLUGIN_ID in acl_users.objectIds():
         return
@@ -25,3 +29,12 @@ def setup_bridge_pas_plugin(setup):
     plugin_interfaces = [plugins.IAuthenticationPlugin.__name__,
                          plugins.IExtractionPlugin.__name__]
     plugin.manage_activateInterfaces(plugin_interfaces)
+
+
+def remove_pas_plugin(site):
+    acl_users = getToolByName(site, 'acl_users')
+
+    if PLUGIN_ID not in acl_users.objectIds():
+        return
+
+    del acl_users[PLUGIN_ID]

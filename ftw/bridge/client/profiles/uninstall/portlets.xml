@@ -1,0 +1,6 @@
+<?xml version="1.0"?>
+<portlets>
+
+    <portlet addview="ftw.bridge.client.watcher_portlet" remove="true" />
+
+</portlets>

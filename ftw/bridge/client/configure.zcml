@@ -5,10 +5,14 @@
     xmlns:genericsetup="http://namespaces.zope.org/genericsetup"
     xmlns:i18n="http://namespaces.zope.org/i18n"
     xmlns:pas="http://namespaces.zope.org/pluggableauthservice"
+    xmlns:profilehook="http://namespaces.zope.org/profilehook"
     xmlns:zcml="http://namespaces.zope.org/zcml"
     i18n_domain="ftw.bridge.client">
 
+    <include package="ftw.profilehook" />
+
     <i18n:registerTranslations directory="locales" />
+    <five:registerPackage package="." initialize=".initialize" />
 
     <include package=".browser" />
     <include package=".portlets" />
@@ -56,11 +60,23 @@
         provides="Products.GenericSetup.interfaces.EXTENSION"
         />
 
-    <genericsetup:importStep
-        name="ftw.bridge.client : install bridge PAS plugin"
-        title="install the PAS plugin for handler request from bridge"
+    <profilehook:hook
+        profile="ftw.bridge.client:default"
+        handler=".hooks.installed"
+        />
+
+    <genericsetup:registerProfile
+        name="uninstall"
+        title="ftw.bridge.client:uninstall"
         description=""
-        handler="ftw.bridge.client.setuphandlers.setup_bridge_pas_plugin"
+        directory="profiles/uninstall"
+        provides="Products.GenericSetup.interfaces.EXTENSION"
+        for="Products.CMFPlone.interfaces.IMigratingPloneSiteRoot"
+        />
+
+    <profilehook:hook
+        profile="ftw.bridge.client:uninstall"
+        handler=".hooks.uninstalled"
         />
 
 </configure>
