@@ -2,7 +2,7 @@ Changelog
 =========
 
 
-1.0.10 (unreleased)
+1.0.10 (2015-03-24)
 -------------------
 
 - Brain serializer: fix JSON error when there persistent mutables in the catalog.
