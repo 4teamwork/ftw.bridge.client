@@ -6,6 +6,8 @@ from ftw.bridge.client.interfaces import IBrainSerializer
 from ftw.bridge.client.testing import INTEGRATION_TESTING
 from ftw.builder import Builder
 from ftw.builder import create
+from persistent.list import PersistentList
+from persistent.mapping import PersistentMapping
 from plone.app.testing import setRoles
 from plone.app.testing import TEST_USER_ID
 from Products.CMFCore.utils import getToolByName
@@ -110,6 +112,22 @@ class TestBrainSerializer(TestCase):
 
         self.assertEqual('Folder', folder.portal_type)
         self.assertEqual('Document', page.portal_type)
+
+    def test_converts_persistent_mutables_to_default_types(self):
+        # On the remote side the data is not stored, therfore we can
+        # convert persistent mutables to default types in order to be
+        # able to dump it to json.
+
+        serializer = BrainSerializer()
+        self.assertEquals(dict, type(serializer._encode(PersistentMapping())),
+                          'PersistentMapping should be converted to dict')
+        self.assertEquals(list, type(serializer._encode(PersistentList())),
+                          'PersistentList should be converted to list')
+
+        self.assertEquals(dict, type(serializer._encode({'dict': PersistentMapping()})['dict']),
+                          'Dicts should be encoded recursively')
+        self.assertEquals(list, type(serializer._encode([PersistentList()])[0]),
+                          'Lists should be encoded recursively')
 
 
 class TestBrainResultSet(TestCase):

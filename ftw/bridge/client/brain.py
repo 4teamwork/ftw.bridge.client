@@ -1,10 +1,12 @@
-import DateTime
 from ftw.bridge.client.interfaces import IBrainRepresentation
 from ftw.bridge.client.interfaces import IBrainSerializer
 from ftw.bridge.client.utils import get_brain_url
+from persistent.list import PersistentList
+from persistent.mapping import PersistentMapping
 from Products.CMFCore.utils import getToolByName
 from zope.component.hooks import getSite
 from zope.interface import implements
+import DateTime
 import Missing
 
 
@@ -48,7 +50,20 @@ class BrainSerializer(object):
             return [':DateTime', str(value)]
 
         elif isinstance(value, tuple):
-            return list(value)
+            return self._encode(list(value))
+
+        elif isinstance(value, PersistentMapping):
+            return self._encode(dict(value))
+
+        elif isinstance(value, dict):
+            return dict((self._encode(key), self._encode(value))
+                        for key, value in value.items())
+
+        elif isinstance(value, PersistentList):
+            return self._encode(list(value))
+
+        elif isinstance(value, list):
+            return map(self._encode, value)
 
         return value
 
