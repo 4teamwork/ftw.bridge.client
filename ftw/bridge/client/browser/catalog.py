@@ -21,8 +21,11 @@ class BridgeSearchCatalog(BrowserView):
         brains = self._query_catalog(query, limit)
 
         total_length = self._count_unbatched_length(query)
-        self.request.RESPONSE.setHeader(
+        response = self.request.RESPONSE 
+        response.setHeader(
             'X-total_results_length', str(total_length))
+        response.setHeader('X-Theme-Disabled', 'True')
+        response.setHeader("Content-type", "application/json")
 
         return self._serialize_results(brains)
 
