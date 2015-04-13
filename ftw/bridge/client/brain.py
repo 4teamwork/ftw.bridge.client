@@ -1,3 +1,4 @@
+from datetime import datetime
 from ftw.bridge.client.interfaces import IBrainRepresentation
 from ftw.bridge.client.interfaces import IBrainSerializer
 from ftw.bridge.client.utils import get_brain_url
@@ -49,6 +50,9 @@ class BrainSerializer(object):
         elif isinstance(value, DateTime.DateTime):
             return [':DateTime', str(value)]
 
+        elif isinstance(value, datetime):
+            return [':datetime', self._encode(value.timetuple()[:-2])]
+
         elif isinstance(value, tuple):
             return self._encode(list(value))
 
@@ -82,6 +86,9 @@ class BrainSerializer(object):
                 return DateTime.DateTime(value[1])
             except DateTime.interfaces.SyntaxError:
                 return None
+
+        elif isinstance(value, list) and value[0] == ':datetime':
+            return datetime(*value[1])
 
         return value
 

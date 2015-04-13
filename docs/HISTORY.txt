@@ -5,7 +5,8 @@ Changelog
 1.0.12 (unreleased)
 -------------------
 
-- Nothing changed yet.
+- Catalog requests: serialize python datetime objects.
+  [jone]
 
 
 1.0.11 (2015-04-13)

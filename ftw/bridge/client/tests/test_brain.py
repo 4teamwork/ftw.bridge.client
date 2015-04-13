@@ -1,3 +1,5 @@
+from datetime import datetime
+from DateTime import DateTime
 from ftw.bridge.client.brain import BrainRepresentation
 from ftw.bridge.client.brain import BrainResultSet
 from ftw.bridge.client.brain import BrainSerializer
@@ -11,6 +13,7 @@ from persistent.mapping import PersistentMapping
 from plone.app.testing import setRoles
 from plone.app.testing import TEST_USER_ID
 from Products.CMFCore.utils import getToolByName
+from time import time
 from unittest2 import TestCase
 from zope.component import queryUtility
 from zope.interface.verify import verifyClass
@@ -128,6 +131,15 @@ class TestBrainSerializer(TestCase):
                           'Dicts should be encoded recursively')
         self.assertEquals(list, type(serializer._encode([PersistentList()])[0]),
                           'Lists should be encoded recursively')
+
+    def test_converts_dates(self):
+        serializer = BrainSerializer()
+        data = {'python_datetime': datetime(2014, 12, 22, 15, 30),
+                'zope_DateTime': DateTime('2001/11/14 13:22')}
+        self.assertEquals(
+            data,
+            serializer._decode_data(json.loads(
+                    json.dumps(serializer._encode(data)))))
 
 
 class TestBrainResultSet(TestCase):
