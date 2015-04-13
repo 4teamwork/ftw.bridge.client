@@ -5,7 +5,8 @@ Changelog
 1.0.11 (unreleased)
 -------------------
 
-- Nothing changed yet.
+- Catalog requests: set response headers.
+  [jone]
 
 
 1.0.10 (2015-03-24)
