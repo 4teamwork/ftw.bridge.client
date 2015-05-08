@@ -93,9 +93,9 @@ Runs with `Plone <http://www.plone.org/>`_ `4.1`, `4.2` or `4.3`.
 Links
 -----
 
-- Github project repository: https://github.com/4teamwork/ftw.bridge.client
-- Issue tracker: https://github.com/4teamwork/ftw.bridge.client/issues
-- Package on pypi: http://pypi.python.org/pypi/ftw.bridge.client
+- Github: https://github.com/4teamwork/ftw.bridge.client
+- Issues: https://github.com/4teamwork/ftw.bridge.client/issues
+- Pypi: http://pypi.python.org/pypi/ftw.bridge.client
 - Continuous integration: https://jenkins.4teamwork.ch/search?q=ftw.bridge.client
 
 
