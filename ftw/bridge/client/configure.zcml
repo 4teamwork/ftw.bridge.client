@@ -7,6 +7,7 @@
     xmlns:pas="http://namespaces.zope.org/pluggableauthservice"
     xmlns:profilehook="http://namespaces.zope.org/profilehook"
     xmlns:zcml="http://namespaces.zope.org/zcml"
+    xmlns:upgrade-step="http://namespaces.zope.org/ftw.upgrade"
     i18n_domain="ftw.bridge.client">
 
     <include package="ftw.profilehook" />
@@ -16,11 +17,11 @@
 
     <include package=".browser" />
     <include package=".portlets" />
+    <include package="ftw.upgrade" file="meta.zcml" />
 
     <configure zcml:condition="installed ftw.tabbedview">
         <include package=".tabbed" />
     </configure>
-
 
     <utility
         factory="ftw.bridge.client.config.BridgeConfig"
@@ -58,6 +59,11 @@
         description=""
         directory="profiles/default"
         provides="Products.GenericSetup.interfaces.EXTENSION"
+        />
+
+    <upgrade-step:directory
+        profile="ftw.bridge.client:default"
+        directory="./upgrades"
         />
 
     <profilehook:hook
