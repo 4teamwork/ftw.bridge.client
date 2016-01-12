@@ -5,7 +5,9 @@ Changelog
 1.0.13 (unreleased)
 -------------------
 
-- Nothing changed yet.
+- Add types_to_ignore registry entry for the watcher feed.
+  All defined portaltypes will not be listed in the watcher portlet.
+  [elioschmutz]
 
 
 1.0.12 (2015-04-13)

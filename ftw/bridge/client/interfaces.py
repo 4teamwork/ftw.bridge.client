@@ -3,6 +3,7 @@
 # E0213: Method should have "self" as first argument
 
 from ftw.bridge.client import _
+from zope import schema
 from zope.interface import Interface
 
 
@@ -107,3 +108,17 @@ class IBrainRepresentation(Interface):
     def getURL():
         """Returns the full public url to the object on the remote client.
         """
+
+
+class IWatcherPortletRegistry(Interface):
+    """Describe some properties to configure the watcher portlet.
+    """
+
+    types_to_ignore = schema.List(
+        title=_(u"Types to ignore"),
+        description=_(
+            u"Defined portaltypes will be ignorded by the watcher portlet"),
+        required=False,
+        value_type=schema.TextLine(title=u"Portal types"),
+        default=[]
+    )
