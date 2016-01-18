@@ -2,12 +2,14 @@ from datetime import datetime
 from ftw.bridge.client import _
 from ftw.bridge.client.exceptions import MaintenanceError
 from ftw.bridge.client.interfaces import IBridgeRequest
+from ftw.bridge.client.interfaces import IWatcherPortletRegistry
 from ftw.bridge.client.interfaces import MAINTENANCE_ERROR_MESSAGE
 from ftw.bridge.client.portlets.watcher import Assignment
 from ftw.bridge.client.utils import get_brain_url
 from ftw.bridge.client.utils import get_object_url
 from ftw.bridge.client.utils import json
 from ftw.bridge.client.utils import to_utf8_recursively
+from plone import api
 from plone.app.portlets.utils import assignment_from_key
 from plone.app.portlets.utils import assignment_mapping_from_key
 from plone.portlets.constants import USER_CATEGORY
@@ -135,8 +137,14 @@ class WatcherFeed(BrowserView):
                 get_object_url(obj))}
 
     def get_items(self, obj):
+        types_to_ignore = api.portal.get_registry_record(
+            name='types_to_ignore', interface=IWatcherPortletRegistry)
+
         brains = self.query_catalog(obj)
         for brain in brains:
+            if types_to_ignore and brain.portal_type in types_to_ignore:
+                continue
+
             yield self.get_item_data(brain)
 
     def query_catalog(self, obj, limit=WATCHER_PORTLET_LIMIT):

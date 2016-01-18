@@ -1,6 +1,8 @@
+from ftw.bridge.client.interfaces import IWatcherPortletRegistry
 from ftw.bridge.client.interfaces import PORTAL_URL_PLACEHOLDER
 from ftw.bridge.client.testing import EXAMPLE_CONTENT_LAYER
 from ftw.bridge.client.utils import json
+from plone import api
 from plone.uuid.interfaces import IUUID
 from unittest2 import TestCase
 from zope.component import queryMultiAdapter
@@ -53,3 +55,26 @@ class TestWatcherFeedView(TestCase):
                          portal_type=u'Folder',
                          cssclass=u''),
                     ]))
+
+    def test_ignore_types_in_feed(self):
+        portal = self.layer['portal']
+        folder = self.layer['folder']
+        uid = IUUID(folder)
+
+        request = self.layer['request']
+        request.form['uid'] = uid
+
+        view = queryMultiAdapter((portal, request), name='watcher-feed')
+
+        data = json.loads(view())
+
+        self.assertEqual(2, len(data.get('items')))
+
+        api.portal.set_registry_record('types_to_ignore',
+                                       value=[u'Document'],
+                                       interface=IWatcherPortletRegistry)
+
+        data = json.loads(view())
+
+        self.assertEqual(1, len(data.get('items')))
+        self.assertEqual('Folder', data.get('items')[0].get('portal_type'))
