@@ -2,7 +2,7 @@ Changelog
 =========
 
 
-1.0.14 (unreleased)
+1.0.14 (2016-11-01)
 -------------------
 
 - Watcher portlet feed: fix error when object was deleted. [jone]
