@@ -126,7 +126,10 @@ class WatcherFeed(BrowserView):
         uid = self.request.get('uid')
         reference_catalog = getToolByName(self.context, 'reference_catalog')
         obj = reference_catalog.lookupObject(uid)
-        data = self.get_data(obj)
+        if obj is not None:
+            data = self.get_data(obj)
+        else:
+            data = None
         return json.dumps(data)
 
     def get_data(self, obj):
