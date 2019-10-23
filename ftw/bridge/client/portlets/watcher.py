@@ -1,13 +1,20 @@
 from Acquisition import aq_inner
-from Products.Five.browser.pagetemplatefile import ViewPageTemplateFile
 from ftw.bridge.client import _
 from plone.app.portlets.portlets import base
 from plone.memoize.compress import xhtml_compress
 from plone.portlets.interfaces import IPortletDataProvider
+from Products.Five.browser.pagetemplatefile import ViewPageTemplateFile
+from z3c.form import field
 from zope import schema
 from zope.component import getMultiAdapter
-from zope.formlib import form
 from zope.interface import implements
+
+
+try:
+    from plone.app.portlets.browser import z3cformhelper
+except ImportError:
+    # plone 5
+    from plone.app.portlets.browser import formhelper as z3cformhelper
 
 
 class IWatcherPortlet(IPortletDataProvider):
@@ -64,9 +71,10 @@ class Renderer(base.Renderer):
         return xhtml_compress(self._template())
 
 
-class AddForm(base.AddForm):
+class AddForm(z3cformhelper.AddForm):
 
-    form_fields = form.Fields(IWatcherPortlet)
+    schema = IWatcherPortlet
+    fields = field.Fields(IWatcherPortlet)
     label = _(u'title_watcher_portlet',
               default='Recently modified')
 
