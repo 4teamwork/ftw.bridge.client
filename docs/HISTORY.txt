@@ -5,7 +5,7 @@ Changelog
 1.0.15 (unreleased)
 -------------------
 
-- Nothing changed yet.
+- Add Plone 5.1 support. [tinagerber]
 
 
 1.0.14 (2016-11-01)

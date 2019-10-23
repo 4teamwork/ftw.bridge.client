@@ -126,8 +126,8 @@ class TestCatalogRequest(TestCase):
 
     def test_reverse_sorting(self):
         setRoles(self.layer['portal'], TEST_USER_ID, ['Manager'])
-        foo = create(Builder('folder').titled('Foo'))
-        create(Builder('folder').titled('Bar').within(foo))
+        foo = create(Builder('folder').titled(u'Foo'))
+        create(Builder('folder').titled(u'Bar').within(foo))
 
         query = {'path': '/'.join(foo.getPhysicalPath()),
                  'sort_on': 'sortable_title',

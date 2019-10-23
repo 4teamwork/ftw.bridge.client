@@ -1,0 +1,13 @@
+<?xml version="1.0"?>
+<portlets
+    xmlns:i18n="http://xml.zope.org/namespaces/i18n"
+    i18n:domain="plone">
+
+    <portlet
+        addview="ftw.bridge.client.watcher_portlet"
+        title="Recently modified"
+        i18n:attributes="title title_watcher_portlet"
+        >
+    </portlet>
+
+</portlets>

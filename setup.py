@@ -15,6 +15,7 @@ tests_require = [
     'unittest2',
     'z3c.autoinclude',  # TODO: eliminate autoinclude in tests
     'zope.browser',
+    'plone.app.contenttypes',
     ]
 
 extras_require = {
@@ -40,6 +41,7 @@ setup(name='ftw.bridge.client',
         'Framework :: Plone :: 4.1',
         'Framework :: Plone :: 4.2',
         'Framework :: Plone :: 4.3',
+        'Framework :: Plone :: 5.1',
         'License :: OSI Approved :: GNU General Public License (GPL)',
         'Programming Language :: Python',
         ],
@@ -74,7 +76,7 @@ setup(name='ftw.bridge.client',
           'plone.memoize',
           'plone.portlets',
           'setuptools',
-          'zope.app.component',
+          'zope.app.component<4.0.0a',
           'zope.component',
           'zope.formlib',
           'zope.i18nmessageid',
