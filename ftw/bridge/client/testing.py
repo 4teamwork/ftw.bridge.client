@@ -3,6 +3,7 @@ from StringIO import StringIO
 from ftw.builder.testing import BUILDER_LAYER
 from ftw.builder.testing import functional_session_factory
 from ftw.builder.testing import set_builder_session_factory
+from ftw.testing import IS_PLONE_5
 from ftw.testing.layer import ComponentRegistryLayer
 from plone.app.testing import FunctionalTesting
 from plone.app.testing import IntegrationTesting
@@ -88,6 +89,8 @@ class IntegrationTestingLayer(PloneTestingLayer):
 
     def setUpPloneSite(self, portal):
         applyProfile(portal, 'ftw.bridge.client:default')
+        if IS_PLONE_5:
+            applyProfile(portal, 'plone.app.contenttypes:default')
 
         mtool = getToolByName(portal, 'portal_membership')
         setRoles(portal, TEST_USER_ID, ['Manager'])

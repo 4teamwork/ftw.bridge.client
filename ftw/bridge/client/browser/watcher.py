@@ -12,6 +12,7 @@ from ftw.bridge.client.utils import to_utf8_recursively
 from plone import api
 from plone.app.portlets.utils import assignment_from_key
 from plone.app.portlets.utils import assignment_mapping_from_key
+from plone.app.uuid.utils import uuidToObject
 from plone.portlets.constants import USER_CATEGORY
 from plone.portlets.utils import unhashPortletInfo
 from Products.CMFCore.utils import getToolByName
@@ -124,8 +125,7 @@ class WatcherFeed(BrowserView):
 
     def __call__(self):
         uid = self.request.get('uid')
-        reference_catalog = getToolByName(self.context, 'reference_catalog')
-        obj = reference_catalog.lookupObject(uid)
+        obj = uuidToObject(uid)
         if obj is not None:
             data = self.get_data(obj)
         else:

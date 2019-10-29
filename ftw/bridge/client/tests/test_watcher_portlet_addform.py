@@ -1,5 +1,6 @@
 from ftw.bridge.client.testing import FUNCTIONAL_TESTING
 from ftw.bridge.client.tests.base import RequestAwareTestCase
+from ftw.testing import IS_PLONE_5
 from plone.app.testing import TEST_USER_ID
 from plone.app.testing import TEST_USER_NAME
 from plone.app.testing import TEST_USER_PASSWORD
@@ -50,10 +51,17 @@ class TestWatcherPortletAddForm(RequestAwareTestCase):
             'ftw.bridge.client.watcher_portlet')
 
     def test_portlet_addform(self):
-        self.assertEqual(
-            self.portal.restrictedTraverse(
-                '++contextportlets++plone.rightcolumn').keys(),
-            [])
+        if IS_PLONE_5:
+            # By default there is an event portlet in plone 5 already.
+            self.assertEqual(
+                self.portal.restrictedTraverse(
+                    '++contextportlets++plone.rightcolumn').keys(),
+                ['events'])
+        else:
+            self.assertEqual(
+                self.portal.restrictedTraverse(
+                    '++contextportlets++plone.rightcolumn').keys(),
+                [])
 
         url = os.path.join(self.portal.absolute_url(),
                            '++contextportlets++plone.rightcolumn',
@@ -70,9 +78,7 @@ class TestWatcherPortletAddForm(RequestAwareTestCase):
 
         mapping = self.portal.restrictedTraverse(
             '++contextportlets++plone.rightcolumn')
-        self.assertEqual(
-            mapping.keys(),
-            ['title_watcher_portlet'])
+        self.assertIn('title_watcher_portlet', mapping.keys())
         assignment = mapping.get('title_watcher_portlet')
         self.assertEqual(assignment.client_id, u'foo')
         self.assertEqual(assignment.path, u'@@bar?baz=1')

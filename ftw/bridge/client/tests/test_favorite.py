@@ -54,7 +54,7 @@ class TestAddWatcherPortletView(TestCase):
         self.assertEquals(len(folder.objectValues()), 1)
         link = folder.objectValues()[0]
         self.assertEquals(link.Title(), 'Google search')
-        self.assertEquals(link.getRemoteUrl(), 'http://www.google.com/')
+        self.assertEquals(link.remoteUrl, 'http://www.google.com/')
 
     def test_generate_favorite_id(self):
         mock_folder = Dummy(objectIds=lambda: ['favorite-1', 'favorite-2'])

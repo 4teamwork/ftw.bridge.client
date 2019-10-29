@@ -15,6 +15,11 @@ MAINTENANCE_ERROR_MESSAGE = _(
     default=u'The target service is currently in maintenace. Try again later.')
 
 
+class IFtwBridgeClientLayer(Interface):
+    """Marker interface for ftw.bridge.client
+    """
+
+
 class IBridgeConfig(Interface):
     """Utility providing bridge configuration infos. Configurable using
     environment variables:

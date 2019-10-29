@@ -27,7 +27,7 @@ class TestBrainSerializer(TestCase):
     def setUp(self):
         self.portal = self.layer['portal']
         setRoles(self.portal, TEST_USER_ID, ['Contributor'])
-        self.folder = create(Builder('folder').titled('Feed folder'))
+        self.folder = create(Builder('folder').titled(u'Feed folder'))
         create(Builder('page').titled(u'The page with uml\xe4uts')
                .within(self.folder))
 

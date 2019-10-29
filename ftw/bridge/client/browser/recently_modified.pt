@@ -32,7 +32,8 @@
                 <dl>
                     <tal:results tal:repeat="result batch">
 
-                        <dt tal:define="item_icon python:plone_view.getIcon(result);
+                        <dt tal:define="layout_view here/@@plone_layout;
+                                        item_icon python:layout_view.getIcon(result);
                                         item_wf_state result/review_state;
                                         item_wf_state_class python:'state-' + normalizeString(item_wf_state);
                                         item_type_class python: not result.getIcon and 'contenttype-' + normalizeString(result.portal_type) or ''">
