@@ -1,11 +1,12 @@
-from Products.CMFCore.utils import getToolByName
-from Products.Five import BrowserView
-from Products.statusmessages.interfaces import IStatusMessage
 from ftw.bridge.client import _
 from ftw.bridge.client.exceptions import MaintenanceError
 from ftw.bridge.client.interfaces import IBridgeRequest
 from ftw.bridge.client.interfaces import MAINTENANCE_ERROR_MESSAGE
 from ftw.bridge.client.interfaces import PORTAL_URL_PLACEHOLDER
+from plone.registry.interfaces import IRegistry
+from Products.CMFCore.utils import getToolByName
+from Products.Five import BrowserView
+from Products.statusmessages.interfaces import IStatusMessage
 from zope.component import getMultiAdapter
 from zope.component import getUtility
 
@@ -31,9 +32,10 @@ class AddFavorite(BrowserView):
     def get_favorites_folder(self):
         membership = getToolByName(self.context, 'portal_membership')
         folder = membership.getHomeFolder()
-        if 'Favorites' not in folder.objectIds():
-            folder.invokeFactory('Folder', 'Favorites', title='Favorites')
-        return folder.get('Favorites')
+        name = self.get_fav_folder_name()
+        if name not in folder.objectIds():
+            folder.invokeFactory('Folder', name, title='Favorites')
+        return folder.get(name)
 
     def generate_favorite_id(self, favorites_folder, base='favorite'):
         existing_ids = favorites_folder.objectIds()
@@ -44,6 +46,13 @@ class AddFavorite(BrowserView):
             if id_ not in existing_ids:
                 return id_
             idx += 1
+
+    def get_fav_folder_name(self):
+        registry = getUtility(IRegistry)
+        name = registry.get('ftw.dashboard.portlets.favourites.foldername')
+        if not name:
+            name = 'Favorites'
+        return name
 
 
 class RemoteAddFavoriteAction(BrowserView):
