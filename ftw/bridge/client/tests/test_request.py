@@ -45,12 +45,13 @@ class TestBridgeRequestUtility(RequestAwareTestCase):
     layer = BRIDGE_CONFIG_LAYER
 
     def setUp(self):
-        RequestAwareTestCase.setUp(self)
+        super(TestBridgeRequestUtility, self).setUp()
 
         user = SimpleUser('john.doe', 'pw', [], [])
         SecurityManagement.newSecurityManager(object(), user)
 
     def tearDown(self):
+        super(TestBridgeRequestUtility, self).tearDown()
         SecurityManagement.noSecurityManager()
 
     def test_component_is_registered(self):

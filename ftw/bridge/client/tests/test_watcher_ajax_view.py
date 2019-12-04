@@ -41,7 +41,7 @@ class TestAjaxLoadPortletDataView(RequestAwareTestCase):
                 return portlet, hashPortletInfo(info)
 
     def setUp(self):
-        RequestAwareTestCase.setUp(self)
+        super(TestAjaxLoadPortletDataView, self).setUp()
 
         portal = self.layer['portal']
         request = self.layer['request']

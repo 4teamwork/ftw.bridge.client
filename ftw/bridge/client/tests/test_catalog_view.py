@@ -16,6 +16,7 @@ class TestBridgeSearchCatalogView(TestCase):
     layer = EXAMPLE_CONTENT_LAYER
 
     def setUp(self):
+        super(TestBridgeSearchCatalogView, self).setUp()
         self.portal = self.layer['portal']
         self.folder = self.layer['folder']
         self.request = self.layer['request']
@@ -84,6 +85,7 @@ class TestCatalogRequest(TestCase):
     layer = EXAMPLE_CONTENT_LAYER
 
     def setUp(self):
+        super(TestCatalogRequest, self).setUp()
         self.folder = self.layer['folder']
 
     def test_full_stack_catalog_query_by_traversing(self):

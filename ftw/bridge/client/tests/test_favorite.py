@@ -17,12 +17,16 @@ class TestAddWatcherPortletView(TestCase):
     layer = INTEGRATION_TESTING
 
     def setUp(self):
+        super(TestAddWatcherPortletView, self).setUp()
+
         self.portal = self.layer['portal']
         self.request = self.layer['request']
         self.mtool = getToolByName(self.portal, 'portal_membership')
         self.folder = self.mtool.getHomeFolder()
 
     def tearDown(self):
+        super(TestAddWatcherPortletView, self).tearDown()
+
         if 'title' in self.request.form:
             del self.request.form['title']
 
@@ -68,7 +72,7 @@ class TestRemoteAddFavoriteAction(RequestAwareTestCase):
     layer = EXAMPLE_CONTENT_LAYER
 
     def setUp(self):
-        RequestAwareTestCase.setUp(self)
+        super(TestRemoteAddFavoriteAction, self).setUp()
 
         user = SimpleUser('john.doe', 'pw', [], [])
         SecurityManagement.newSecurityManager(object(), user)
@@ -87,6 +91,7 @@ class TestRemoteAddFavoriteAction(RequestAwareTestCase):
 
         if 'location' in self.request.response.headers:
             del self.request.response.headers['location']
+        super(TestRemoteAddFavoriteAction, self).tearDown()
 
     def test_component_is_registered(self):
         self.replay()

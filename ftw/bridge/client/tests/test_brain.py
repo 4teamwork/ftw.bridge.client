@@ -25,6 +25,7 @@ class TestBrainSerializer(TestCase):
     layer = INTEGRATION_TESTING
 
     def setUp(self):
+        super(TestBrainSerializer, self).setUp()
         self.portal = self.layer['portal']
         setRoles(self.portal, TEST_USER_ID, ['Contributor'])
         self.folder = create(Builder('folder').titled(u'Feed folder'))

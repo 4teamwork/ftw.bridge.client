@@ -55,7 +55,7 @@ class TestPasPlugin(MockTestCase):
     layer = ZCML_LAYER
 
     def setUp(self):
-        MockTestCase.setUp(self)
+        super(TestPasPlugin, self).setUp()
         self.config = self.stub_interface(IBridgeConfig)
         self.expect(self.config.get_bridge_ips()).result([
                 '127.0.0.1', '127.0.0.2'])

@@ -14,7 +14,7 @@ class TestWatchActionView(RequestAwareTestCase):
     layer = EXAMPLE_CONTENT_LAYER
 
     def setUp(self):
-        RequestAwareTestCase.setUp(self)
+        super(TestWatchActionView, self).setUp()
 
         user = SimpleUser('john.doe', 'pw', [], [])
         SecurityManagement.newSecurityManager(object(), user)
