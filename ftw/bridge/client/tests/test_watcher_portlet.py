@@ -35,11 +35,8 @@ class TestWatcherPortlet(MockTestCase):
         plone_portal_state = self.stub()
         self.mock_adapter(plone_portal_state, IBrowserView,
                           (Interface, Interface), name='plone_portal_state')
-        self.expect(plone_portal_state(context, request)).result(
-            plone_portal_state)
-        self.expect(plone_portal_state.anonymous()).result(False)
-
-        self.replay()
+        plone_portal_state.return_value = plone_portal_state
+        plone_portal_state.anonymous.return_value = False
 
         renderer = getMultiAdapter(
             (context, request, view, manager, assignment), IPortletRenderer)

@@ -65,36 +65,35 @@ class TestAjaxLoadPortletDataView(RequestAwareTestCase):
         url = 'http://bridge/proxy/%s/%s' % (portlet.client_id,
                                              portlet.path)
 
-        self._expect_request(url=url).result(self._create_response(
-                status_code=200, raw=feed_data))
+        response = self._create_response(status_code=200, raw=feed_data)
+        with self.patch(response):
+            request.form['hash'] = portlet_hash
 
-        self.replay()
-        request.form['hash'] = portlet_hash
+            view = queryMultiAdapter((portal, request), name='watcher-load-data')
+            self.assertNotEqual(view, None)
 
-        view = queryMultiAdapter((portal, request), name='watcher-load-data')
-        self.assertNotEqual(view, None)
+            dt_format = '%b %d, %Y'
 
-        dt_format = '%b %d, %Y'
+            expected_feed_data = dict(
+                title=u'Feed folder',
+                details_url=u'%sfeed-folder/@@watcher-recently-modified' % (
+                    PORTAL_URL_PLACEHOLDER),
+                items=[
+                    dict(title=u'The page with uml\xe4uts',
+                         url=u'%sfeed-folder/page' % PORTAL_URL_PLACEHOLDER,
+                         modified=page.modified().strftime(dt_format),
+                         portal_type=u'Document',
+                         cssclass=u''),
 
-        expected_feed_data = dict(
-            title=u'Feed folder',
-            details_url=u'%sfeed-folder/@@watcher-recently-modified' % (
-                PORTAL_URL_PLACEHOLDER),
-            items=[
-                dict(title=u'The page with uml\xe4uts',
-                     url=u'%sfeed-folder/page' % PORTAL_URL_PLACEHOLDER,
-                     modified=page.modified().strftime(dt_format),
-                     portal_type=u'Document',
-                     cssclass=u''),
+                    dict(title=u'Feed folder',
+                         url=u'%sfeed-folder' % PORTAL_URL_PLACEHOLDER,
+                         modified=folder.modified().strftime(dt_format),
+                         portal_type=u'Folder',
+                         cssclass=u''),
+                    ])
 
-                dict(title=u'Feed folder',
-                     url=u'%sfeed-folder' % PORTAL_URL_PLACEHOLDER,
-                     modified=folder.modified().strftime(dt_format),
-                     portal_type=u'Folder',
-                     cssclass=u''),
-                ])
-
-        self.assertEqual(json.loads(view()), expected_feed_data)
+            self.assertEqual(json.loads(view()), expected_feed_data)
+            self.assertUrl(url)
 
     def test_maintenance_error(self):
         portal = self.layer['portal']
@@ -104,15 +103,15 @@ class TestAjaxLoadPortletDataView(RequestAwareTestCase):
         request.form['uid'] = IUUID(folder)
 
         _portlet, portlet_hash = self._get_portlet_and_hash()
-        self._expect_request().throw(MaintenanceError())
 
-        self.replay()
-        request.form['hash'] = portlet_hash
+        error = MaintenanceError()
+        with self.patch(error=error):
+            request.form['hash'] = portlet_hash
 
-        view = queryMultiAdapter((portal, request), name='watcher-load-data')
-        self.assertNotEqual(view, None)
+            view = queryMultiAdapter((portal, request), name='watcher-load-data')
+            self.assertNotEqual(view, None)
 
-        self.assertEqual(view(), '"MAINTENANCE"')
+            self.assertEqual(view(), '"MAINTENANCE"')
 
     def test_view_does_not_fail_when_no_modified_date_is_passed(self):
         portal = self.layer['portal']
@@ -130,12 +129,10 @@ class TestAjaxLoadPortletDataView(RequestAwareTestCase):
         data = json.dumps(data)
 
         _portlet, portlet_hash = self._get_portlet_and_hash()
-        self._expect_request().result(self._create_response(
-                status_code=200, raw=data))
+        response = self._create_response(status_code=200, raw=feed_data)
+        with self.patch(response):
+            request.form['hash'] = portlet_hash
 
-        self.replay()
-        request.form['hash'] = portlet_hash
-
-        view = queryMultiAdapter((portal, request), name='watcher-load-data')
-        self.assertNotEqual(view, None)
-        self.assertEqual(type(json.loads(view())), dict)
+            view = queryMultiAdapter((portal, request), name='watcher-load-data')
+            self.assertNotEqual(view, None)
+            self.assertEqual(type(json.loads(view())), dict)

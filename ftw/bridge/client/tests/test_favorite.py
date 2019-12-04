@@ -6,7 +6,7 @@ from ftw.bridge.client.interfaces import PORTAL_URL_PLACEHOLDER
 from ftw.bridge.client.testing import EXAMPLE_CONTENT_LAYER
 from ftw.bridge.client.testing import INTEGRATION_TESTING
 from ftw.bridge.client.tests.base import RequestAwareTestCase
-from plone.mocktestcase.dummy import Dummy
+from ftw.testing.testcase import Dummy
 from unittest2 import TestCase
 from zope.component import getMultiAdapter
 import urllib2
@@ -94,7 +94,6 @@ class TestRemoteAddFavoriteAction(RequestAwareTestCase):
         super(TestRemoteAddFavoriteAction, self).tearDown()
 
     def test_component_is_registered(self):
-        self.replay()
         getMultiAdapter((self.page, self.request),
                         name='remote-add-favorite')
 
@@ -102,148 +101,127 @@ class TestRemoteAddFavoriteAction(RequestAwareTestCase):
         favorite_url = '%sfeed-folder/page' % PORTAL_URL_PLACEHOLDER
         bridge_url = 'http://bridge/proxy/dashboard/@@add-favorite'
 
-        self._expect_request(url=bridge_url,
-                             data={'title': 'The page with uml\xc3\xa4uts',
-                                   'url': favorite_url}).result(
-            self._create_response(raw='OK'))
-
-        self.replay()
-        view = getMultiAdapter((self.page, self.request),
-                               name='remote-add-favorite')
-        view()
+        response = self._create_response(raw='OK')
+        with self.patch(response):
+            view = getMultiAdapter((self.page, self.request),
+                                   name='remote-add-favorite')
+            view()
+            self.assertData({'title': 'The page with uml\xc3\xa4uts',
+                             'url': favorite_url})
 
     def test_status_message_on_success(self):
-        self._expect_request().result(self._create_response(raw='OK'))
+        response = self._create_response(raw='OK')
+        with self.patch(response):
+            view = getMultiAdapter((self.page, self.request),
+                                   name='remote-add-favorite')
+            view()
 
-        self.replay()
-        view = getMultiAdapter((self.page, self.request),
-                               name='remote-add-favorite')
-        view()
-
-        messages = IStatusMessage(self.request).show()
-        self.assertEqual(len(messages), 1)
-        self.assertEqual(
-            messages[0].message,
-            u'The page with uml\xe4uts was added to your favorites.')
-        self.assertEqual(messages[0].type,
-                         'info')
+            messages = IStatusMessage(self.request).show()
+            self.assertEqual(len(messages), 1)
+            self.assertEqual(
+                messages[0].message,
+                u'The page with uml\xe4uts was added to your favorites.')
+            self.assertEqual(messages[0].type, 'info')
 
     def test_redirects_back(self):
-        self._expect_request().result(self._create_response(raw='OK'))
+        response = self._create_response(raw='OK')
+        with self.patch(response):
+            view = getMultiAdapter((self.page, self.request),
+                                   name='remote-add-favorite')
+            view()
 
-        self.replay()
-        view = getMultiAdapter((self.page, self.request),
-                               name='remote-add-favorite')
-        view()
-
-        self.assertEqual(self.request.response.headers.get('location'),
-                         self.page.absolute_url())
+            self.assertEqual(self.request.response.headers.get('location'),
+                             self.page.absolute_url())
 
     def test_maintenance_status_message(self):
-        self._expect_request().throw(urllib2.HTTPError(
-                'url', 503, 'Service Unavailable', None, None))
+        error = urllib2.HTTPError('url', 503, 'Service Unavailable', None, None)
+        with self.patch(error=error):
+            view = getMultiAdapter((self.page, self.request),
+                                   name='remote-add-favorite')
+            view()
 
-        self.replay()
-        view = getMultiAdapter((self.page, self.request),
-                               name='remote-add-favorite')
-        view()
-
-        messages = IStatusMessage(self.request).show()
-        self.assertEqual(len(messages), 1)
-        self.assertEqual(messages[0].message,
-                         u'The target service is currently in ' + \
-                             u'maintenace. Try again later.')
-        self.assertEqual(messages[0].type,
-                         'error')
+            messages = IStatusMessage(self.request).show()
+            self.assertEqual(len(messages), 1)
+            self.assertEqual(messages[0].message,
+                             u'The target service is currently in maintenace. '
+                             u'Try again later.')
+            self.assertEqual(messages[0].type,
+                             'error')
 
     def test_maintenance_redirect(self):
-        self._expect_request().throw(urllib2.HTTPError(
-                'url', 503, 'Service Unavailable', None, None))
+        error = urllib2.HTTPError('url', 503, 'Service Unavailable', None, None)
+        with self.patch(error=error):
+            view = getMultiAdapter((self.page, self.request),
+                                   name='remote-add-favorite')
+            view()
 
-        self.replay()
-        view = getMultiAdapter((self.page, self.request),
-                               name='remote-add-favorite')
-        view()
-
-        self.assertEqual(self.request.response.headers.get('location'),
-                         self.page.absolute_url())
+            self.assertEqual(self.request.response.headers.get('location'),
+                             self.page.absolute_url())
 
     def test_error_status_message(self):
-        self._expect_request().result(
-            self._create_response(status_code=500, raw='Error'))
-        self.replay()
+        response = self._create_response(raw='Error', status_code=500)
+        with self.patch(response):
+            view = getMultiAdapter((self.page, self.request),
+                                   name='remote-add-favorite')
+            view()
 
-        view = getMultiAdapter((self.page, self.request),
-                               name='remote-add-favorite')
-        view()
-
-        messages = IStatusMessage(self.request).show()
-        self.assertEqual(len(messages), 1)
-        self.assertEqual(messages[0].message,
-                         u'The favorite could not be created.')
-        self.assertEqual(messages[0].type,
-                         'error')
+            messages = IStatusMessage(self.request).show()
+            self.assertEqual(len(messages), 1)
+            self.assertEqual(messages[0].message,
+                             u'The favorite could not be created.')
+            self.assertEqual(messages[0].type,
+                             'error')
 
     def test_error_redirect(self):
-        self._expect_request().result(
-            self._create_response(status_code=500, raw='Error'))
+        response = self._create_response(raw='Error', status_code=500)
+        with self.patch(response):
+            view = getMultiAdapter((self.page, self.request),
+                                   name='remote-add-favorite')
+            view()
 
-        self.replay()
-        view = getMultiAdapter((self.page, self.request),
-                               name='remote-add-favorite')
-        view()
-
-        self.assertEqual(self.request.response.headers.get('location'),
-                         self.page.absolute_url())
+            self.assertEqual(self.request.response.headers.get('location'),
+                             self.page.absolute_url())
 
     def test_redirects_to_context_when_no_referer_is_found(self):
         if 'HTTP_REFERER' in self.request.environ:
             del self.request.environ['HTTP_REFERER']
-        self._expect_request().result(
-            self._create_response(status_code=500, raw='Error'))
 
-        self.replay()
-        view = getMultiAdapter((self.page, self.request),
-                               name='remote-add-favorite')
-        view()
+        response = self._create_response(raw='Error', status_code=500)
+        with self.patch(response):
+            view = getMultiAdapter((self.page, self.request),
+                                   name='remote-add-favorite')
+            view()
 
-        self.assertEqual(self.request.response.headers.get('location'),
-                         self.page.absolute_url())
+            self.assertEqual(self.request.response.headers.get('location'),
+                             self.page.absolute_url())
 
     def test_error_status_message_on_requests_exception(self):
-        self._expect_request().throw(
-            urllib2.URLError('Connection failed'))
+        error = urllib2.URLError('Connection failed')
+        with self.patch(error=error):
+            view = getMultiAdapter((self.page, self.request),
+                                   name='remote-add-favorite')
+            view()
 
-        self.replay()
-
-        view = getMultiAdapter((self.page, self.request),
-                               name='remote-add-favorite')
-        view()
-
-        messages = IStatusMessage(self.request).show()
-        self.assertEqual(len(messages), 1)
-        self.assertEqual(messages[0].message,
-                         u'The favorite could not be created.')
-        self.assertEqual(messages[0].type,
-                         'error')
+            messages = IStatusMessage(self.request).show()
+            self.assertEqual(len(messages), 1)
+            self.assertEqual(messages[0].message,
+                             u'The favorite could not be created.')
+            self.assertEqual(messages[0].type, 'error')
 
     def test_redirect_to_file_view(self):
         # absolute_url would download the file, therefore we need to redirect
         # to the view - but we do that only for typesUseViewActionInListings
-        self._expect_request().throw(
-            urllib2.URLError('Connection failed'))
+        error = urllib2.URLError('Connection failed')
+        with self.patch(error=error):
+            if 'HTTP_REFERER' in self.request.environ:
+                del self.request.environ['HTTP_REFERER']
 
-        self.replay()
-
-        if 'HTTP_REFERER' in self.request.environ:
-            del self.request.environ['HTTP_REFERER']
-
-        context = self.portal.get('file')
-        view = getMultiAdapter((context, self.request),
-                               name='remote-add-favorite')
-        view()
-        self.assertEqual(self.request.response.headers.get('location'),
-                         context.absolute_url() + '/view')
+            context = self.portal.get('file')
+            view = getMultiAdapter((context, self.request),
+                                   name='remote-add-favorite')
+            view()
+            self.assertEqual(self.request.response.headers.get('location'),
+                             context.absolute_url() + '/view')
 
     def test_file_url_has_view_in_favoritte(self):
         # absolute_url would download the file, therefore we need to set the
@@ -253,13 +231,11 @@ class TestRemoteAddFavoriteAction(RequestAwareTestCase):
         favorite_url = '%sfile/view' % PORTAL_URL_PLACEHOLDER
         bridge_url = 'http://bridge/proxy/dashboard/@@add-favorite'
 
-        self._expect_request(url=bridge_url,
-                             data={'title': 'the file',
-                                   'url': favorite_url}).result(
-            self._create_response(raw='OK'))
-
-        self.replay()
-        context = self.portal.get('file')
-        view = getMultiAdapter((context, self.request),
-                               name='remote-add-favorite')
-        view()
+        response = self._create_response(raw='OK')
+        with self.patch(response):
+            context = self.portal.get('file')
+            view = getMultiAdapter((context, self.request),
+                                   name='remote-add-favorite')
+            view()
+            self.assertUrl(bridge_url)
+            self.assertData({'title': 'the file', 'url': favorite_url})

@@ -1,19 +1,12 @@
 from StringIO import StringIO
 from ftw.testing import MockTestCase
-from mocker import ANY, ARGS, KWARGS
+from mock import patch
+from contextlib import contextmanager
 import urllib
+import urllib2
 
 
 class RequestAwareTestCase(MockTestCase):
-
-    def setUp(self):
-        MockTestCase.setUp(self)
-
-        self.urllib2 = self.mocker.replace('urllib2')
-        # Let the urllib2 not do any requests at all while
-        # testing. We do this by expecting any request call zero times.
-        self.expect(self.urllib2.build_opener(ARGS, KWARGS)).count(0)
-        self.expect(self.urllib2.Request(ARGS, KWARGS)).count(0)
 
     def _create_response(self, status_code=200, raw='response data',
                          total_length=None):
@@ -25,13 +18,37 @@ class RequestAwareTestCase(MockTestCase):
             headers={})
         return response
 
-    def _expect_request(self, url=ANY, headers=ANY, data=None):
-        data = data and urllib.urlencode(data) or ANY
-        request = self.mocker.mock()
-        self.expect(self.urllib2.Request(
-                url,
-                data,
-                headers)).result(request)
-        opener = self.mocker.mock()
-        self.expect(self.urllib2.build_opener(ANY)).result(opener)
-        return self.expect(opener.open(request))
+    @contextmanager
+    def patch(self, response=None, error=None):
+        http_error = urllib2.HTTPError
+        url_error = urllib2.URLError
+
+        with patch('ftw.bridge.client.request.urllib2') as mocked_urllib2:
+            self._urllib2 = mocked_urllib2
+            opener = self.mock()
+            self._urllib2.HTTPError = http_error
+            self._urllib2.URLError = url_error
+
+            if response:
+                opener.open.return_value = response
+            if error:
+                opener.open.side_effect = error
+
+            self._urllib2.build_opener.return_value = opener
+
+            self._urllib2.Request = self.mock()
+            yield self._urllib2
+
+    def assertRquest(self, position, value):
+        self.assertEquals(self._urllib2.Request.call_args[0][position], value)
+
+    def assertUrl(self, value):
+        self.assertRquest(0, value)
+
+    def assertData(self, value):
+        if isinstance(value, dict):
+            value = urllib.urlencode(value)
+        self.assertRquest(1, value)
+
+    def assertHeaders(self, value):
+        self.assertRquest(2, value)

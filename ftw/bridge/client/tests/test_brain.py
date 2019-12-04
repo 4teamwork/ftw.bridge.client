@@ -13,7 +13,6 @@ from persistent.mapping import PersistentMapping
 from plone.app.testing import setRoles
 from plone.app.testing import TEST_USER_ID
 from Products.CMFCore.utils import getToolByName
-from time import time
 from unittest2 import TestCase
 from zope.component import queryUtility
 from zope.interface.verify import verifyClass
