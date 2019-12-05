@@ -14,7 +14,7 @@ class TestWatchActionView(RequestAwareTestCase):
     layer = EXAMPLE_CONTENT_LAYER
 
     def setUp(self):
-        RequestAwareTestCase.setUp(self)
+        super(TestWatchActionView, self).setUp()
 
         user = SimpleUser('john.doe', 'pw', [], [])
         SecurityManagement.newSecurityManager(object(), user)
@@ -22,8 +22,6 @@ class TestWatchActionView(RequestAwareTestCase):
     def test_component_is_registered(self):
         context = self.stub()
         request = self.stub_request()
-
-        self.replay()
 
         view = queryMultiAdapter((context, request), name='watch')
         self.assertNotEqual(view, None)
@@ -37,21 +35,20 @@ class TestWatchActionView(RequestAwareTestCase):
         feed_path = '@@watcher-feed?uid=%s' % IUUID(context)
         bridge_path = 'http://bridge/proxy/dashboard/@@add-watcher-portlet'
 
-        self._expect_request(url=bridge_path,
-                             data={'path': feed_path}).result(
-            self._create_response(raw='OK'))
+        response = self._create_response(raw='OK')
 
-        self.replay()
+        with self.patch(response):
+            view = getMultiAdapter((context, request), name='watch')
+            view()
+            self.assertEqual(request.response.headers.get('location'),
+                             referer_url)
 
-        view = getMultiAdapter((context, request), name='watch')
-        view()
-        self.assertEqual(request.response.headers.get('location'),
-                         referer_url)
+            self.assertUrl(bridge_path)
+            self.assertData({'path': feed_path})
 
         messages = IStatusMessage(request).show()
         self.assertEqual(len(messages), 1)
-        self.assertEqual(messages[0].message,
-                         u'A dashboard portlet was created.')
+        self.assertEqual(messages[0].message, u'A dashboard portlet was created.')
 
     def test_maintenance(self):
         context = self.layer['folder']
@@ -59,35 +56,29 @@ class TestWatchActionView(RequestAwareTestCase):
         referer_url = 'http://nohost/plone/some-folder'
         request.environ['HTTP_REFERER'] = referer_url
 
-        self._expect_request().throw(urllib2.HTTPError(
-                'url', 503, 'Service Unavailable', None, None))
-
-        self.replay()
-
-        view = getMultiAdapter((context, request), name='watch')
-        view()
-        self.assertEqual(request.response.headers.get('location'),
-                         referer_url)
+        error = urllib2.HTTPError('url', 503, 'Service Unavailable', None, None)
+        with self.patch(error=error):
+            view = getMultiAdapter((context, request), name='watch')
+            view()
+            self.assertEqual(request.response.headers.get('location'),
+                             referer_url)
 
         messages = IStatusMessage(request).show()
         self.assertEqual(len(messages), 1)
         self.assertEqual(messages[0].message,
-                         u'The target service is currently in ' + \
-                             u'maintenace. Try again later.')
+                         u'The target service is currently in maintenace. '
+                         'Try again later.')
 
     def test_error(self):
         context = self.layer['folder']
         request = self.layer['request']
 
-        self._expect_request().throw(urllib2.HTTPError(
-                'url', 500, 'Internal Server Error', None, None))
-
-        self.replay()
-
-        view = getMultiAdapter((context, request), name='watch')
-        view()
-        self.assertEqual(request.response.headers.get('location'),
-                         context.absolute_url())
+        error = urllib2.HTTPError('url', 500, 'Internal Server Error', None, None)
+        with self.patch(error=error):
+            view = getMultiAdapter((context, request), name='watch')
+            view()
+            self.assertEqual(request.response.headers.get('location'),
+                             context.absolute_url())
 
         messages = IStatusMessage(request).show()
         self.assertEqual(len(messages), 1)
@@ -98,15 +89,12 @@ class TestWatchActionView(RequestAwareTestCase):
         context = self.layer['folder']
         request = self.layer['request']
 
-        self._expect_request().throw(
-            urllib2.URLError('Connection failed'))
-
-        self.replay()
-
-        view = getMultiAdapter((context, request), name='watch')
-        view()
-        self.assertEqual(request.response.headers.get('location'),
-                         context.absolute_url())
+        error = urllib2.URLError('Connection failed')
+        with self.patch(error=error):
+            view = getMultiAdapter((context, request), name='watch')
+            view()
+            self.assertEqual(request.response.headers.get('location'),
+                             context.absolute_url())
 
         messages = IStatusMessage(request).show()
         self.assertEqual(len(messages), 1)
@@ -119,12 +107,9 @@ class TestWatchActionView(RequestAwareTestCase):
         context = self.layer['file']
         request = self.layer['request']
 
-        self._expect_request().throw(
-            urllib2.URLError('Connection failed'))
-
-        self.replay()
-
-        view = getMultiAdapter((context, request), name='watch')
-        view()
-        self.assertEqual(request.response.headers.get('location'),
-                         context.absolute_url() + '/view')
+        error = urllib2.URLError('Connection failed')
+        with self.patch(error=error):
+            view = getMultiAdapter((context, request), name='watch')
+            view()
+            self.assertEqual(request.response.headers.get('location'),
+                             context.absolute_url() + '/view')

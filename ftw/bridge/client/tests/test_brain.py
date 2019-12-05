@@ -13,7 +13,6 @@ from persistent.mapping import PersistentMapping
 from plone.app.testing import setRoles
 from plone.app.testing import TEST_USER_ID
 from Products.CMFCore.utils import getToolByName
-from time import time
 from unittest2 import TestCase
 from zope.component import queryUtility
 from zope.interface.verify import verifyClass
@@ -25,6 +24,7 @@ class TestBrainSerializer(TestCase):
     layer = INTEGRATION_TESTING
 
     def setUp(self):
+        super(TestBrainSerializer, self).setUp()
         self.portal = self.layer['portal']
         setRoles(self.portal, TEST_USER_ID, ['Contributor'])
         self.folder = create(Builder('folder').titled(u'Feed folder'))

@@ -8,6 +8,7 @@ class TestRecentlyModifiedView(TestCase):
     layer = EXAMPLE_CONTENT_LAYER
 
     def setUp(self):
+        super(TestRecentlyModifiedView, self).setUp()
         self.folder = self.layer['portal'].get('feed-folder')
         self.layer['request'].ACTUAL_URL = os.path.join(
             self.folder.absolute_url(),
