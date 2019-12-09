@@ -6,6 +6,7 @@ Changelog
 ------------------
 
 - Use configured name from ftw.dashboard.portlets.favourites.foldername if available. [mathias.leimgruber, tinagerber]
+- Provide precompiled bundle [tinagerber]
 
 
 1.1.0 (2019-10-29)

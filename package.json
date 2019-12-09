@@ -1,0 +1,17 @@
+{
+  "name": "ftw.bridge.client",
+  "version": "1.0.0",
+  "repository": "git@github.com:4teamwork/ftw.bridge.client.git",
+  "author": "4teamwork AG <info@4teamwork.ch>",
+  "license": "GPL2",
+  "private": true,
+  "scripts": {
+    "build": "r.js -o build.js",
+    "build-js": "r.js -o build.js",
+    "watch": "chokidar \"./ftw/bridge/client/browser/resources/*.js\" -i \"**/*-compiled.js\" -c \"r.js -o build.js;\""
+  },
+  "devDependencies": {
+    "chokidar-cli": "^2.1.0",
+    "requirejs": "^2.3.6"
+  }
+}
