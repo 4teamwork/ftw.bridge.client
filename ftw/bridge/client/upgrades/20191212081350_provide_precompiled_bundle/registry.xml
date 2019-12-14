@@ -1,8 +1,12 @@
 <?xml version="1.0"?>
 <registry>
-    <records interface="ftw.bridge.client.interfaces.IWatcherPortletRegistry" />
+
+    <records prefix="plone.resources/ftw-bridge-client-js"
+             interface="Products.CMFPlone.interfaces.IResourceRegistry"
+            remove="true" />
 
     <records prefix="plone.bundles/ftw-bridge-client-resources" interface='Products.CMFPlone.interfaces.IBundleRegistry'>
+        <value key="resources" purge="True"></value>
         <value key="enabled">True</value>
         <value key="depends">plone</value>
         <value key="compile">False</value>
