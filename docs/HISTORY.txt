@@ -2,7 +2,7 @@ Changelog
 =========
 
 
-1.1.1 (unreleased)
+1.1.1 (2019-12-14)
 ------------------
 
 - Use configured name from ftw.dashboard.portlets.favourites.foldername if available. [mathias.leimgruber, tinagerber]
